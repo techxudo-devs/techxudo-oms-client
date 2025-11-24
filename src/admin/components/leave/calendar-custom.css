@@ -1,0 +1,281 @@
+/* Modern Calendar Styling */
+.modern-calendar {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Calendar container */
+.modern-calendar .rbc-calendar {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Header styling */
+.modern-calendar .rbc-header {
+  padding: 16px 8px;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #374151;
+  background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+  border-bottom: 2px solid #e5e7eb !important;
+}
+
+/* Toolbar styling */
+.modern-calendar .rbc-toolbar {
+  padding: 20px 0;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.modern-calendar .rbc-toolbar button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  background: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.modern-calendar .rbc-toolbar button:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.1);
+}
+
+.modern-calendar .rbc-toolbar button:active,
+.modern-calendar .rbc-toolbar button.rbc-active {
+  background: #3b82f6;
+  color: white;
+  border-color: #2563eb;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.modern-calendar .rbc-toolbar button.rbc-active:hover {
+  background: #2563eb;
+  transform: translateY(0);
+}
+
+.modern-calendar .rbc-toolbar-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.025em;
+}
+
+/* Day cells */
+.modern-calendar .rbc-day-bg {
+  border-color: #f3f4f6 !important;
+  transition: background-color 0.15s ease;
+}
+
+.modern-calendar .rbc-day-bg:hover {
+  background-color: #f3f3f3;
+}
+
+.modern-calendar .rbc-off-range-bg {
+  background-color: #f1f1f1;
+}
+
+.modern-calendar .rbc-today {
+  background-color: #eff6ff !important;
+  border: 2px solid #3b82f6 !important;
+}
+
+/* Date numbers */
+.modern-calendar .rbc-date-cell {
+  padding: 8px;
+  text-align: right;
+}
+
+.modern-calendar .rbc-date-cell > a,
+.modern-calendar .rbc-date-cell > button {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.modern-calendar .rbc-off-range {
+  color: #9ca3af;
+}
+
+.modern-calendar .rbc-now {
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* Events */
+.modern-calendar .rbc-event {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.modern-calendar .rbc-event:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.modern-calendar .rbc-event-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Selected event */
+.modern-calendar .rbc-selected {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Show more link */
+.modern-calendar .rbc-show-more {
+  background-color: transparent;
+  color: #3b82f6;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modern-calendar .rbc-show-more:hover {
+  background-color: #eff6ff;
+  text-decoration: none;
+}
+
+/* Agenda view */
+.modern-calendar .rbc-agenda-view {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modern-calendar .rbc-agenda-table {
+  border-spacing: 0;
+}
+
+.modern-calendar .rbc-agenda-date-cell,
+.modern-calendar .rbc-agenda-time-cell {
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.modern-calendar .rbc-agenda-event-cell {
+  padding: 12px 16px;
+}
+
+.modern-calendar tbody > tr > td + td {
+  border-left: 1px solid #f3f4f6;
+}
+
+.modern-calendar .rbc-agenda-view table tbody > tr > td {
+  padding: 12px 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.modern-calendar .rbc-agenda-view table tbody > tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Time slots */
+.modern-calendar .rbc-time-slot {
+  border-top: 1px solid #f3f4f6;
+}
+
+.modern-calendar .rbc-time-header-content {
+  border-left: 1px solid #e5e7eb;
+}
+
+.modern-calendar .rbc-timeslot-group {
+  border-left: 1px solid #f3f4f6;
+  min-height: 60px;
+}
+
+.modern-calendar .rbc-time-content {
+  border-top: 2px solid #e5e7eb;
+}
+
+/* Month view cells */
+.modern-calendar .rbc-month-row {
+  border-top: 1px solid #f3f4f6;
+  min-height: 100px;
+}
+
+.modern-calendar .rbc-day-slot .rbc-event {
+  border: none;
+}
+
+/* Popup overlay */
+.modern-calendar .rbc-overlay {
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  z-index: 1000;
+}
+
+.modern-calendar .rbc-overlay-header {
+  padding: 8px 12px;
+  margin: -8px -8px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+  border-radius: 12px 12px 0 0;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Current time indicator */
+.modern-calendar .rbc-current-time-indicator {
+  background-color: #ef4444;
+  height: 2px;
+}
+
+/* Scrollbar styling */
+.modern-calendar .rbc-time-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modern-calendar .rbc-time-content::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.modern-calendar .rbc-time-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.modern-calendar .rbc-time-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modern-calendar .rbc-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modern-calendar .rbc-toolbar button {
+    width: 100%;
+  }
+
+  .modern-calendar .rbc-toolbar-label {
+    text-align: center;
+    margin: 12px 0;
+  }
+}

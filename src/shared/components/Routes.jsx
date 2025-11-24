@@ -1,0 +1,136 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+
+import Layout from "./layout/Layout";
+import PrivateRoute from "./layout/PrivateRoute";
+
+// Auth Pages
+import Login from "../../pages/auth/Login";
+
+// Admin Pages
+import AdminDashboard from "../../admin/pages/AdminDashboard";
+import EmployeeManagement from "../../admin/pages/EmployeeManagement";
+import DocumentManagement from "../../admin/pages/document/DocumentManagementPage";
+import AdminLeaveDashboard from "../../admin/pages/leave/AdminLeaveDashboard";
+import AdminDocumentRequestDashboard from "@/admin/pages/document-requests/AdminDocumentRequestDashboard";
+import AdminAttendanceDashboard from "@/admin/pages/attendance/AdminAttendanceDashboard";
+import AllAttendancePage from "@/admin/pages/attendance/AllAttendancePage";
+import ReportsPage from "@/admin/pages/attendance/ReportsPage";
+import QRCodePage from "@/admin/pages/attendance/QRCodePage";
+import SettingsPage from "@/admin/pages/attendance/SettingsPage";
+import ManualEntryPage from "@/admin/pages/attendance/ManualEntryPage";
+
+// Employee Pages
+import EmployeeDashboard from "../../employee/pages/EmployeeDashboard";
+import DocumentDashboard from "@/employee/pages/document/DocumentDashboard";
+import DocumentSigningPage from "../../employee/pages/document/DocumentSigningPage";
+import { OnboardingPage } from "../../employee/pages/OnBoardingPage";
+import LeaveManagementPage from "@/employee/pages/LeaveManagementPage";
+import DocumentRequestManagement from "@/employee/pages/document-requests/DocumentRequestManagement";
+import AttendancePage from "@/employee/pages/attendance/AttendancePage";
+import AttendanceHistoryPage from "@/employee/pages/attendance/AttendanceHistoryPage";
+
+// Route configurations
+const adminRoutes = [
+  { path: "/admin/dashboard", element: <AdminDashboard /> },
+  { path: "/admin/employees", element: <EmployeeManagement /> },
+  { path: "/admin/documents", element: <DocumentManagement /> },
+  { path: "/admin/leave", element: <AdminLeaveDashboard /> },
+  { path: "/admin/request", element: <AdminDocumentRequestDashboard /> },
+  { path: "/admin/attendance", element: <AdminAttendanceDashboard /> },
+  { path: "/admin/attendance/all", element: <AllAttendancePage /> },
+  { path: "/admin/attendance/reports", element: <ReportsPage /> },
+  { path: "/admin/attendance/qr", element: <QRCodePage /> },
+  { path: "/admin/attendance/manual-entry", element: <ManualEntryPage /> },
+  { path: "/admin/attendance/settings", element: <SettingsPage /> },
+];
+
+const employeeRoutes = [
+  { path: "/employee/dashboard", element: <EmployeeDashboard /> },
+  { path: "/employee/documents", element: <DocumentDashboard /> },
+  { path: "/employee/documents/:id/sign", element: <DocumentSigningPage /> },
+  { path: "/employee/requests", element: <DocumentRequestManagement /> },
+  { path: "/employee/attendance", element: <AttendancePage /> },
+  { path: "/employee/attendance/history", element: <AttendanceHistoryPage /> },
+  { path: "/employee/leave", element: <LeaveManagementPage /> },
+  {
+    path: "/employee/tasks",
+    element: <div className="p-6">My Tasks - Coming Soon</div>,
+  },
+  {
+    path: "/employee/reports",
+    element: <div className="p-6">Work Reports - Coming Soon</div>,
+  },
+  {
+    path: "/employee/salary",
+    element: <div className="p-6">Salary - Coming Soon</div>,
+  },
+];
+
+const sharedRoutes = [
+  {
+    path: "/profile",
+    element: <div className="p-6">Profile - Coming Soon</div>,
+  },
+  {
+    path: "/settings",
+    element: <div className="p-6">Settings - Coming Soon</div>,
+  },
+];
+
+const AppRoutes = () => {
+  const { user, isAdmin } = useAuth();
+
+  const redirectToDashboard = () =>
+    isAdmin ? "/admin/dashboard" : "/employee/dashboard";
+
+  const renderRoutes = (routesArray) =>
+    routesArray.map((route) => (
+      <Route key={route.path} path={route.path} element={route.element} />
+    ));
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/login"
+        element={
+          user ? <Navigate to={redirectToDashboard()} replace /> : <Login />
+        }
+      />
+      <Route path="/onboarding/:token" element={<OnboardingPage />} />
+
+      {/* Admin Routes */}
+      <Route element={<PrivateRoute allowAdmin />}>
+        <Route element={<Layout />}>{renderRoutes(adminRoutes)}</Route>
+      </Route>
+
+      {/* Employee Routes */}
+      <Route element={<PrivateRoute allowEmployee />}>
+        <Route element={<Layout />}>{renderRoutes(employeeRoutes)}</Route>
+      </Route>
+
+      {/* Shared Routes */}
+      <Route element={<PrivateRoute allowBoth />}>
+        <Route element={<Layout />}>{renderRoutes(sharedRoutes)}</Route>
+      </Route>
+
+      {/* Default Redirect */}
+      <Route
+        path="/"
+        element={
+          user ? (
+            <Navigate to={redirectToDashboard()} replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      {/* 404 Redirect */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
