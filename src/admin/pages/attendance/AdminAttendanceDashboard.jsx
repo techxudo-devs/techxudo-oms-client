@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { useGetDashboardStatsQuery, useGetDailyReportQuery } from "../../apiSlices/manageAttendanceApiSlice";
+import {
+  useGetDashboardStatsQuery,
+  useGetDailyReportQuery,
+} from "../../apiSlices/manageAttendanceApiSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +11,7 @@ import {
   UserX,
   Clock,
   Calendar,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -20,9 +23,10 @@ const AdminAttendanceDashboard = () => {
   const { data: dashboardStats, isLoading: isStatsLoading } =
     useGetDashboardStatsQuery();
 
-  const { data: dailyReport, isLoading: isReportLoading } = useGetDailyReportQuery({
-    date: selectedDate
-  });
+  const { data: dailyReport, isLoading: isReportLoading } =
+    useGetDailyReportQuery({
+      date: selectedDate,
+    });
 
   if (isStatsLoading) {
     return (
@@ -41,11 +45,13 @@ const AdminAttendanceDashboard = () => {
   const lateArrivals = dailyReport?.lateArrivals || [];
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-6 ">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Attendance Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Attendance Dashboard
+          </h1>
           <p className="text-gray-600 mt-1">Real-time attendance monitoring</p>
         </div>
         <div className="flex gap-2">
@@ -93,7 +99,9 @@ const AdminAttendanceDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Absent Today</p>
-                <p className="text-3xl font-bold text-red-600">{stats.absent || 0}</p>
+                <p className="text-3xl font-bold text-red-600">
+                  {stats.absent || 0}
+                </p>
               </div>
               <UserX className="h-12 w-12 text-red-500" />
             </div>
@@ -169,7 +177,9 @@ const AdminAttendanceDashboard = () => {
                       className="flex items-center justify-between p-2 bg-yellow-50 rounded-md"
                     >
                       <div>
-                        <p className="font-medium">{attendance.userId?.fullName}</p>
+                        <p className="font-medium">
+                          {attendance.userId?.fullName}
+                        </p>
                         <p className="text-sm text-gray-600">
                           {attendance.userId?.designation}
                         </p>
@@ -179,10 +189,12 @@ const AdminAttendanceDashboard = () => {
                           {attendance.lateArrival?.minutesLate} min late
                         </p>
                         <p className="text-xs text-gray-500">
-                          {new Date(attendance.checkIn?.time).toLocaleTimeString(
-                            "en-US",
-                            { hour: "2-digit", minute: "2-digit" }
-                          )}
+                          {new Date(
+                            attendance.checkIn?.time
+                          ).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
                       </div>
                     </div>

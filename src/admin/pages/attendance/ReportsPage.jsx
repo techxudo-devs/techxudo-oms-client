@@ -99,7 +99,7 @@ const ReportsPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto p-6 ">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
