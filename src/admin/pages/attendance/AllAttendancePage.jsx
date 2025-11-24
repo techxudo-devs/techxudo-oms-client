@@ -22,6 +22,7 @@ import {
   Trash2,
   UserCheck,
   Search,
+  MapPin,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -50,6 +51,7 @@ const AllAttendancePage = () => {
 
   const { data, isLoading, isFetching } = useGetAllAttendanceQuery(queryParams);
   const [deleteAttendance] = useDeleteAttendanceMutation();
+  console.log(data);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
@@ -84,6 +86,8 @@ const AllAttendancePage = () => {
         "Late (min)",
         "Method",
         "IP Address",
+        "Location Latitude",
+        "Location Longitude",
       ],
       ...data.attendances.map((att) => [
         format(new Date(att.date), "MMM dd, yyyy"),
@@ -98,6 +102,8 @@ const AllAttendancePage = () => {
         att.lateArrival?.isLate ? att.lateArrival.minutesLate : 0,
         att.checkIn?.method || "-",
         att.checkIn?.ipAddress || "-",
+        att.checkIn?.location?.latitude || "-",
+        att.checkIn?.location?.longitude || "-",
       ]),
     ]
       .map((row) => row.join(","))
@@ -354,6 +360,12 @@ const AllAttendancePage = () => {
                         Late
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        IP Address
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Location
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Actions
                       </th>
                     </tr>
@@ -404,6 +416,30 @@ const AllAttendancePage = () => {
                             </span>
                           ) : (
                             <span className="text-green-600">No</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm">
+                          {attendance.checkIn?.ipAddress || "-"}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm">
+                          {attendance.checkIn?.location ? (
+                            <button
+                              className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                              onClick={() => {
+                                const lat = attendance.checkIn.location.latitude;
+                                const lng = attendance.checkIn.location.longitude;
+                                window.open(
+                                  `https://www.google.com/maps?q=${lat},${lng}`,
+                                  "_blank"
+                                );
+                              }}
+                              title={`Location: ${attendance.checkIn.location.latitude}, ${attendance.checkIn.location.longitude}`}
+                            >
+                              <MapPin className="h-4 w-4" />
+                              View
+                            </button>
+                          ) : (
+                            "-"
                           )}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm">
