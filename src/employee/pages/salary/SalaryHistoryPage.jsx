@@ -42,6 +42,8 @@ const SalaryHistoryPage = () => {
     getStatusBadge,
     getTotalEarnings,
     getAverageSalary,
+    handleAcknowledgeSalary,
+    isAcknowledging,
   } = useSalary();
 
   const [expandedRow, setExpandedRow] = useState(null);
@@ -255,6 +257,9 @@ const SalaryHistoryPage = () => {
                         Status
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Actions
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Details
                       </th>
                     </tr>
@@ -278,13 +283,27 @@ const SalaryHistoryPage = () => {
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                salary.isLocked
+                                salary.paymentStatus === 'paid' && !salary.acknowledged
+                                  ? "bg-blue-100 text-blue-700"
+                                  : salary.acknowledged
                                   ? "bg-green-100 text-green-700"
                                   : "bg-yellow-100 text-yellow-700"
                               }`}
                             >
-                              {getStatusBadge(salary.isLocked)}
+                              {getStatusBadge(salary)}
                             </span>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm">
+                            {salary.paymentStatus === 'paid' && !salary.acknowledged && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAcknowledgeSalary(salary._id)}
+                                disabled={isAcknowledging}
+                              >
+                                Acknowledge
+                              </Button>
+                            )}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap text-sm">
                             <Button

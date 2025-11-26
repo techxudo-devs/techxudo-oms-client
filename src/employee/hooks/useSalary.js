@@ -3,6 +3,7 @@ import {
   useGetMySalaryHistoryQuery,
   useGetMyCurrentSalaryQuery,
   useGetMySalarySummaryQuery,
+  useAcknowledgeSalaryMutation,
   useLazyExportMySalaryQuery,
 } from "../apiSlices/salaryApiSlice";
 import { toast } from "sonner";
@@ -49,6 +50,7 @@ export const useSalary = () => {
   });
 
   const [exportSalary] = useLazyExportMySalaryQuery();
+  const [acknowledgeSalary, { isLoading: isAcknowledging }] = useAcknowledgeSalaryMutation();
 
   // Export handlers
   const handleExportCSV = useCallback(async () => {
@@ -139,8 +141,26 @@ export const useSalary = () => {
     });
   }, []);
 
-  const getStatusBadge = useCallback((isLocked) => {
-    return isLocked ? "Paid" : "Pending";
+  const handleAcknowledgeSalary = useCallback(async (salaryId) => {
+    try {
+      await acknowledgeSalary(salaryId).unwrap();
+      toast.success("Salary acknowledged successfully");
+      refetchHistory(); // Refresh the salary history
+      return true;
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to acknowledge salary");
+      return false;
+    }
+  }, [acknowledgeSalary, refetchHistory]);
+
+  const getStatusBadge = useCallback((salary) => {
+    if (salary.acknowledged) {
+      return "Acknowledged";
+    } else if (salary.paymentStatus === "paid") {
+      return "Paid - Awaiting Acknowledgment";
+    } else {
+      return salary.paymentStatus || "Pending";
+    }
   }, []);
 
   const handleRefresh = useCallback(() => {
@@ -211,5 +231,9 @@ export const useSalary = () => {
     formatMonth,
     getStatusBadge,
     getBreakdownPercentages,
+
+    // Acknowledgment
+    handleAcknowledgeSalary,
+    isAcknowledging,
   };
 };

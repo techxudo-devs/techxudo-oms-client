@@ -26,6 +26,15 @@ export const employeeSalaryApiSlice = apiSlice.injectEndpoints({
       providesTags: ["MySalarySummary"]
     }),
 
+    // Employee: Acknowledge salary
+    acknowledgeSalary: builder.mutation({
+      query: (id) => ({
+        url: `/salary/acknowledge/${id}`,
+        method: "POST"
+      }),
+      invalidatesTags: ["MySalaryHistory", "MyCurrentSalary"]
+    }),
+
     // Employee: Export my salary (returns download URL)
     exportMySalary: builder.query({
       query: (params) => ({
@@ -41,5 +50,6 @@ export const {
   useGetMySalaryHistoryQuery,
   useGetMyCurrentSalaryQuery,
   useGetMySalarySummaryQuery,
+  useAcknowledgeSalaryMutation,
   useLazyExportMySalaryQuery
 } = employeeSalaryApiSlice;
