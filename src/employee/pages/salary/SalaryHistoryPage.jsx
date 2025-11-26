@@ -16,9 +16,11 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
+  CircleDollarSignIcon,
 } from "lucide-react";
 import { useState } from "react";
 import DashboardSkeletonLoader from "@/components/SkeletonLoader";
+import PageLayout from "@/shared/components/layout/PagesLayout";
 
 const SalaryHistoryPage = () => {
   const {
@@ -67,17 +69,17 @@ const SalaryHistoryPage = () => {
   if (isLoading.history) return <DashboardSkeletonLoader />;
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Salary History</h1>
-          <p className="text-gray-600 mt-1">
-            View your salary details and history
-          </p>
-        </div>
+    <PageLayout
+      title={"Salary History"}
+      subtitle={"View you salary details and history"}
+      icon={CircleDollarSignIcon}
+      actions={
         <div className="flex gap-2">
-          <Button onClick={handleExportCSV} disabled={!salaryHistory?.length}>
+          <Button
+            variant={"outline"}
+            onClick={handleExportCSV}
+            disabled={!salaryHistory?.length}
+          >
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
@@ -86,8 +88,8 @@ const SalaryHistoryPage = () => {
             Export PDF
           </Button>
         </div>
-      </div>
-
+      }
+    >
       {/* Current Salary Card */}
       {currentSalary && (
         <Card className="mb-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
@@ -439,7 +441,7 @@ const SalaryHistoryPage = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageLayout>
   );
 };
 

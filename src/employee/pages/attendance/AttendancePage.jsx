@@ -14,10 +14,12 @@ import {
   CheckCircle,
   XCircle,
   History,
+  TimerReset,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import DashboardSkeletonLoader from "@/components/SkeletonLoader";
+import PageLayout from "@/shared/components/layout/PagesLayout";
 
 const AttendancePage = () => {
   const {
@@ -77,21 +79,19 @@ const AttendancePage = () => {
   if (isTodayLoading) return <DashboardSkeletonLoader />;
 
   return (
-    <div className="container mx-auto p-6 ">
-      {/* Header */}
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Attendance</h1>
-          <p className="text-gray-600 mt-1">{formatDate(currentTime)}</p>
-        </div>
+    <PageLayout
+      title={"Attendance"}
+      subtitle={formatDate(currentTime)}
+      icon={TimerReset}
+      actions={
         <Link to="/employee/attendance/history">
           <Button variant="outline">
             <History className="mr-2 h-4 w-4" />
             View History
           </Button>
         </Link>
-      </div>
-
+      }
+    >
       {/* Current Time */}
       <Card className="mb-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
         <CardContent className="p-6">
@@ -330,7 +330,7 @@ const AttendancePage = () => {
           mode={checkInMode}
         />
       )}
-    </div>
+    </PageLayout>
   );
 };
 

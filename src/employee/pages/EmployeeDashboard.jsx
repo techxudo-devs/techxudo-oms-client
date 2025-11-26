@@ -1,5 +1,11 @@
 import React from "react";
-import { Clock, Calendar, FileText, ClipboardList } from "lucide-react";
+import {
+  Clock,
+  Calendar,
+  FileText,
+  ClipboardList,
+  BarChart2Icon,
+} from "lucide-react";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useGetPendingDocumentsQuery } from "../apiSlices/documentApiSlice";
@@ -7,6 +13,7 @@ import RecentAttendanceTable from "@/shared/dashboard/RecentAttendanceTable";
 import RecentSalaryTable from "@/shared/dashboard/RecentSalaryTable";
 import { useGetMySalaryHistoryQuery } from "../apiSlices/salaryApiSlice";
 import { useGetMyAttendanceQuery } from "../apiSlices/attendanceApiSlice";
+import PageLayout from "@/shared/components/layout/PagesLayout";
 
 const EmployeeDashboard = () => {
   const { user } = useAuth();
@@ -46,17 +53,11 @@ const EmployeeDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.fullName}!
-          </h1>
-          <p className="text-gray-600 mt-1">Here's your overview for today.</p>
-        </div>
-      </div>
-
+    <PageLayout
+      title={`Welcome back, ${user?.fullName}!`}
+      subtitle={"Here you overview"}
+      icon={BarChart2Icon}
+    >
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
@@ -178,7 +179,7 @@ const EmployeeDashboard = () => {
           isLoading={isAttendanceLoading}
         />
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
