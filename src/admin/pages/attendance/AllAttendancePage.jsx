@@ -426,8 +426,10 @@ const AllAttendancePage = () => {
                             <button
                               className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
                               onClick={() => {
-                                const lat = attendance.checkIn.location.latitude;
-                                const lng = attendance.checkIn.location.longitude;
+                                const lat =
+                                  attendance.checkIn.location.latitude;
+                                const lng =
+                                  attendance.checkIn.location.longitude;
                                 window.open(
                                   `https://www.google.com/maps?q=${lat},${lng}`,
                                   "_blank"

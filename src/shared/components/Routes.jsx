@@ -19,6 +19,10 @@ import ReportsPage from "@/admin/pages/attendance/ReportsPage";
 import QRCodePage from "@/admin/pages/attendance/QRCodePage";
 import SettingsPage from "@/admin/pages/attendance/SettingsPage";
 import ManualEntryPage from "@/admin/pages/attendance/ManualEntryPage";
+import AdminSalaryDashboard from "@/admin/pages/salary/AdminSalaryDashboard";
+import AllSalariesPage from "@/admin/pages/salary/AllSalariesPage";
+import CreateSalaryPage from "@/admin/pages/salary/CreateSalaryPage";
+import BulkGeneratePage from "@/admin/pages/salary/BulkGeneratePage";
 
 // Employee Pages
 import EmployeeDashboard from "../../employee/pages/EmployeeDashboard";
@@ -29,6 +33,7 @@ import LeaveManagementPage from "@/employee/pages/LeaveManagementPage";
 import DocumentRequestManagement from "@/employee/pages/document-requests/DocumentRequestManagement";
 import AttendancePage from "@/employee/pages/attendance/AttendancePage";
 import AttendanceHistoryPage from "@/employee/pages/attendance/AttendanceHistoryPage";
+import SalaryHistoryPage from "@/employee/pages/salary/SalaryHistoryPage";
 
 // Route configurations
 const adminRoutes = [
@@ -43,6 +48,10 @@ const adminRoutes = [
   { path: "/admin/attendance/qr", element: <QRCodePage /> },
   { path: "/admin/attendance/manual-entry", element: <ManualEntryPage /> },
   { path: "/admin/attendance/settings", element: <SettingsPage /> },
+  { path: "/admin/salary", element: <AdminSalaryDashboard /> },
+  { path: "/admin/salary/all", element: <AllSalariesPage /> },
+  { path: "/admin/salary/create", element: <CreateSalaryPage /> },
+  { path: "/admin/salary/bulk-generate", element: <BulkGeneratePage /> },
 ];
 
 const employeeRoutes = [
@@ -61,10 +70,7 @@ const employeeRoutes = [
     path: "/employee/reports",
     element: <div className="p-6">Work Reports - Coming Soon</div>,
   },
-  {
-    path: "/employee/salary",
-    element: <div className="p-6">Salary - Coming Soon</div>,
-  },
+  { path: "/employee/salary", element: <SalaryHistoryPage /> },
 ];
 
 const sharedRoutes = [

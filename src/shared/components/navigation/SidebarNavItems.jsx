@@ -12,6 +12,7 @@ import {
   DownloadCloud,
   Pin,
   PinIcon,
+  Banknote,
 } from "lucide-react";
 
 export const navItems = [
@@ -63,6 +64,12 @@ export const navItems = [
     icon: <FileText size={20} />,
     path: "/employee/documents",
     roles: ["employee"],
+  },
+  {
+    text: "Salary Management",
+    icon: <Banknote size={20} />,
+    path: "/admin/salary",
+    roles: ["admin"],
   },
   {
     text: "Request Documents",

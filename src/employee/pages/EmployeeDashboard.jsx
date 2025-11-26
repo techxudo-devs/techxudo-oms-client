@@ -3,6 +3,10 @@ import { Clock, Calendar, FileText, ClipboardList } from "lucide-react";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { useGetPendingDocumentsQuery } from "../apiSlices/documentApiSlice";
+import RecentAttendanceTable from "@/shared/dashboard/RecentAttendanceTable";
+import RecentSalaryTable from "@/shared/dashboard/RecentSalaryTable";
+import { useGetMySalaryHistoryQuery } from "../apiSlices/salaryApiSlice";
+import { useGetMyAttendanceQuery } from "../apiSlices/attendanceApiSlice";
 
 const EmployeeDashboard = () => {
   const { user } = useAuth();
@@ -10,6 +14,14 @@ const EmployeeDashboard = () => {
   // Get pending documents for notifications
   const { data: pendingDocuments = [], isLoading: isPendingLoading } =
     useGetPendingDocumentsQuery();
+
+  // Get recent salary history
+  const { data: salaryHistory, isLoading: isSalaryLoading } =
+    useGetMySalaryHistoryQuery({ page: 1, limit: 10 });
+
+  // Get recent attendance
+  const { data: attendanceData, isLoading: isAttendanceLoading } =
+    useGetMyAttendanceQuery({ page: 1, limit: 10 });
 
   const stats = [
     { name: "My Tasks", value: "0", icon: ClipboardList, color: "bg-blue-500" },
@@ -153,6 +165,18 @@ const EmployeeDashboard = () => {
         <p className="text-gray-500 text-center py-8">
           No recent activity to display
         </p>
+      </div>
+
+      {/* Salary and Attendance Tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentSalaryTable
+          salaries={salaryHistory?.salaries || []}
+          isLoading={isSalaryLoading}
+        />
+        <RecentAttendanceTable
+          attendance={attendanceData?.attendance || []}
+          isLoading={isAttendanceLoading}
+        />
       </div>
     </div>
   );

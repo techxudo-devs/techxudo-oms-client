@@ -2,9 +2,18 @@ import { useState } from "react";
 import {
   useGetDashboardStatsQuery,
   useGetDailyReportQuery,
+  useGetAllAttendanceQuery,
 } from "../../apiSlices/manageAttendanceApiSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Users,
   UserCheck,
@@ -12,8 +21,11 @@ import {
   Clock,
   Calendar,
   AlertCircle,
+  TimerResetIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import PageLayout from "@/shared/components/layout/PagesLayout";
+import DashboardSkeletonLoader from "@/components/SkeletonLoader";
 
 const AdminAttendanceDashboard = () => {
   const [selectedDate, setSelectedDate] = useState(
@@ -28,16 +40,10 @@ const AdminAttendanceDashboard = () => {
       date: selectedDate,
     });
 
-  if (isStatsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const { data: recentAttendance, isLoading: isRecentAttendanceLoading } =
+    useGetAllAttendanceQuery({ page: 1, limit: 5 });
+
+  if (isStatsLoading) return <DashboardSkeletonLoader />;
 
   const stats = dashboardStats?.today || {};
   const summary = dailyReport?.summary || {};
@@ -45,15 +51,11 @@ const AdminAttendanceDashboard = () => {
   const lateArrivals = dailyReport?.lateArrivals || [];
 
   return (
-    <div className="container mx-auto p-6 ">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Attendance Dashboard
-          </h1>
-          <p className="text-gray-600 mt-1">Real-time attendance monitoring</p>
-        </div>
+    <PageLayout
+      title={"Attendance Dashboard"}
+      subtitle={"Real-time attendace"}
+      icon={TimerResetIcon}
+      actions={
         <div className="flex gap-2">
           <Link to="/admin/attendance/qr">
             <Button>Generate QR Code</Button>
@@ -62,8 +64,8 @@ const AdminAttendanceDashboard = () => {
             <Button variant="outline">Manual Entry</Button>
           </Link>
         </div>
-      </div>
-
+      }
+    >
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
@@ -211,6 +213,96 @@ const AdminAttendanceDashboard = () => {
         </div>
       )}
 
+      {/* Recent Attendance */}
+      <Card className="mb-6">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-base font-medium">
+            Recent Attendance
+          </CardTitle>
+          <Link to="/admin/attendance/all">
+            <Button variant="outline" size="sm">
+              View All
+            </Button>
+          </Link>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Check In</TableHead>
+                  <TableHead>Check Out</TableHead>
+                  <TableHead>Overtime</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isRecentAttendanceLoading ? (
+                  <TableRow>
+                    <TableCell colSpan="6" className="text-center py-8">
+                      <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : recentAttendance && recentAttendance.attendance && recentAttendance.attendance.length > 0 ? (
+                  recentAttendance.attendance.map((record) => (
+                    <TableRow key={record._id}>
+                      <TableCell className="font-medium">
+                        {record.userId?.fullName || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(record.date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          record.status === 'present'
+                            ? 'bg-green-100 text-green-800'
+                            : record.status === 'late'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : record.status === 'absent'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {record.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {record.checkIn?.time
+                          ? new Date(`2000-01-01T${record.checkIn.time}`).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {record.checkOut?.time
+                          ? new Date(`2000-01-01T${record.checkOut.time}`).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {record.overtimeHours > 0 ? `${record.overtimeHours}h` : "0h"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan="6" className="text-center py-8 text-gray-500">
+                      No attendance records found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Quick Actions */}
       <Card>
         <CardHeader>
@@ -245,7 +337,7 @@ const AdminAttendanceDashboard = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageLayout>
   );
 };
 

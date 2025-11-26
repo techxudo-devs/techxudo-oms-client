@@ -182,7 +182,7 @@ const DocumentSection = ({
                           </span>
                         </button>
                       </div>
-                    </TableCell>
+                  </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
