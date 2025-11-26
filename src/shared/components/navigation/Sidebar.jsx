@@ -1,7 +1,11 @@
 import { createContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { navItems, bottomNavItems } from "./SidebarNavItems";
+import {
+  adminNavItems,
+  employeeNavItems,
+  bottomNavItems,
+} from "./SidebarNavItems";
 import { SidebarItem } from "./SidebarItems";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -33,6 +37,7 @@ const sidebarVariants = {
 
 export function Sidebar({ expanded, setExpanded }) {
   const { user, role } = useAuth();
+  const navList = role === "admin" ? adminNavItems : employeeNavItems;
 
   return (
     <motion.aside
@@ -68,18 +73,15 @@ export function Sidebar({ expanded, setExpanded }) {
           </motion.div>
 
           {/* Toggle Button - Only visible on large screens */}
-         
         </div>
 
         {/* Navigation Items */}
         <SidebarContext.Provider value={{ expanded }}>
           <div className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
             <ul className="space-y-1">
-              {navItems
-                .filter((item) => !item.roles || item.roles.includes(role))
-                .map((item, index) => (
-                  <SidebarItem key={index} item={item} />
-                ))}
+              {navList.map((item, index) => (
+                <SidebarItem key={index} item={item} />
+              ))}
             </ul>
 
             {/* Divider */}

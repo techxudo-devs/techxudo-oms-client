@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
+import DashboardSkeletonLoader from "@/components/SkeletonLoader";
 
 const AttendancePage = () => {
   const {
@@ -73,16 +74,7 @@ const AttendancePage = () => {
     });
   };
 
-  if (isTodayLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading attendance...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isTodayLoading) return <DashboardSkeletonLoader />;
 
   return (
     <div className="container mx-auto p-6 ">

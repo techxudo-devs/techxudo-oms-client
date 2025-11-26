@@ -11,6 +11,7 @@ import Login from "../../pages/auth/Login";
 import AdminDashboard from "../../admin/pages/AdminDashboard";
 import EmployeeManagement from "../../admin/pages/EmployeeManagement";
 import DocumentManagement from "../../admin/pages/document/DocumentManagementPage";
+import UnifiedAdminDocumentManagement from "../../admin/pages/document/UnifiedAdminDocumentManagement";
 import AdminLeaveDashboard from "../../admin/pages/leave/AdminLeaveDashboard";
 import AdminDocumentRequestDashboard from "@/admin/pages/document-requests/AdminDocumentRequestDashboard";
 import AdminAttendanceDashboard from "@/admin/pages/attendance/AdminAttendanceDashboard";
@@ -28,6 +29,7 @@ import BulkGeneratePage from "@/admin/pages/salary/BulkGeneratePage";
 import EmployeeDashboard from "../../employee/pages/EmployeeDashboard";
 import DocumentDashboard from "@/employee/pages/document/DocumentDashboard";
 import DocumentSigningPage from "../../employee/pages/document/DocumentSigningPage";
+import UnifiedDocumentManagement from "@/employee/pages/document/UnifiedDocumentManagement";
 import { OnboardingPage } from "../../employee/pages/OnBoardingPage";
 import LeaveManagementPage from "@/employee/pages/LeaveManagementPage";
 import DocumentRequestManagement from "@/employee/pages/document-requests/DocumentRequestManagement";
@@ -39,9 +41,9 @@ import SalaryHistoryPage from "@/employee/pages/salary/SalaryHistoryPage";
 const adminRoutes = [
   { path: "/admin/dashboard", element: <AdminDashboard /> },
   { path: "/admin/employees", element: <EmployeeManagement /> },
-  { path: "/admin/documents", element: <DocumentManagement /> },
+  { path: "/admin/documents", element: <UnifiedAdminDocumentManagement /> },
   { path: "/admin/leave", element: <AdminLeaveDashboard /> },
-  { path: "/admin/request", element: <AdminDocumentRequestDashboard /> },
+  { path: "/admin/request", element: <UnifiedAdminDocumentManagement /> },
   { path: "/admin/attendance", element: <AdminAttendanceDashboard /> },
   { path: "/admin/attendance/all", element: <AllAttendancePage /> },
   { path: "/admin/attendance/reports", element: <ReportsPage /> },
@@ -56,9 +58,9 @@ const adminRoutes = [
 
 const employeeRoutes = [
   { path: "/employee/dashboard", element: <EmployeeDashboard /> },
-  { path: "/employee/documents", element: <DocumentDashboard /> },
+  { path: "/employee/documents", element: <UnifiedDocumentManagement /> },
   { path: "/employee/documents/:id/sign", element: <DocumentSigningPage /> },
-  { path: "/employee/requests", element: <DocumentRequestManagement /> },
+  { path: "/employee/requests", element: <UnifiedDocumentManagement /> },
   { path: "/employee/attendance", element: <AttendancePage /> },
   { path: "/employee/attendance/history", element: <AttendanceHistoryPage /> },
   { path: "/employee/leave", element: <LeaveManagementPage /> },
