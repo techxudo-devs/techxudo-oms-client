@@ -4,13 +4,16 @@ import { BrowserRouter } from "react-router-dom";
 import store from "./shared/store/store";
 import Routes from "./shared/components/Routes";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "./shared/context/ThemeContext.jsx";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Provider store={store}>
-        <Toaster position="bottom-right" richColors />
-        <Routes />
+        <ThemeProvider>
+          <Toaster position="bottom-right" richColors />
+          <Routes />
+        </ThemeProvider>
       </Provider>
     </BrowserRouter>
   );

@@ -13,6 +13,8 @@ export const useAuth = () => {
         fullName: decode.fullName,
         email: decode.email,
         role: decode.role,
+        setupCompleted: decode.setupCompleted,
+        organizationSlug: decode.organizationSlug,
       };
     } catch (error) {
       console.error("Invalid token", error);
@@ -28,5 +30,6 @@ export const useAuth = () => {
     role: user?.role,
     isAdmin,
     isEmployee,
+    setupCompleted: user?.setupCompleted,
   };
 };

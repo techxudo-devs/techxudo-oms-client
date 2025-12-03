@@ -2,9 +2,10 @@ import React from "react";
 import { Users, ClipboardList, Calendar, FileText } from "lucide-react";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { Link } from "react-router-dom";
+import SetupWizardModal from "@/admin/components/SetupWizardModal.jsx";
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, setupCompleted } = useAuth();
 
   const stats = [
     { name: "Total Employees", value: "0", icon: Users, color: "bg-blue-500" },
@@ -30,10 +31,14 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <>
+      {/* Show Setup Wizard Modal if setup not completed */}
+      {setupCompleted === false && <SetupWizardModal />}
 
-      {/* Stats Grid */}
+      <div className="space-y-6">
+        {/* Header */}
+
+        {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <div
@@ -102,6 +107,7 @@ const AdminDashboard = () => {
         </p>
       </div>
     </div>
+    </>
   );
 };
 

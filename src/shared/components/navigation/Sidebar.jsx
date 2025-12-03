@@ -1,6 +1,6 @@
 import { createContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Building2 } from "lucide-react";
 import {
   adminNavItems,
   employeeNavItems,
@@ -8,6 +8,7 @@ import {
 } from "./SidebarNavItems";
 import { SidebarItem } from "./SidebarItems";
 import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../context/ThemeContext.jsx";
 
 export const SidebarContext = createContext();
 
@@ -37,6 +38,7 @@ const sidebarVariants = {
 
 export function Sidebar({ expanded, setExpanded }) {
   const { user, role } = useAuth();
+  const { logo, companyName, theme } = useTheme();
   const navList = role === "admin" ? adminNavItems : employeeNavItems;
 
   return (
@@ -52,22 +54,47 @@ export function Sidebar({ expanded, setExpanded }) {
           <motion.div
             animate={expanded ? "expanded" : "collapsed"}
             variants={logoVariants}
-            className="flex items-center gap-3 "
+            className="flex items-center gap-3"
           >
             {expanded ? (
-              <div className="flex  items-center gap-2">
-                <div className="size-10 rounded-lg bg-gradient-to-br from-brand-primary to-blue-600 flex items-center justify-center shadow-md">
-                  <span className="text-white font-bold text-xl italic">
-                    TX
-                  </span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-brand-primary to-blue-600 bg-clip-text text-transparent">
-                  Techxudo
+              <div className="flex items-center gap-3">
+                {logo ? (
+                  <img
+                    src={logo}
+                    alt={companyName || "Company Logo"}
+                    className="h-10 w-10 object-contain rounded-lg"
+                  />
+                ) : (
+                  <div
+                    className="size-10 rounded-lg flex items-center justify-center shadow-md"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    <Building2 className="text-white w-6 h-6" />
+                  </div>
+                )}
+                <span
+                  className="text-xl font-bold"
+                  style={{ color: theme.primaryColor }}
+                >
+                  {companyName || "TechXudo"}
                 </span>
               </div>
             ) : (
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-primary to-blue-600 flex items-center justify-center shadow-md">
-                <span className="text-white font-bold text-lg">T</span>
+              <div className="relative">
+                {logo ? (
+                  <img
+                    src={logo}
+                    alt={companyName || "Company Logo"}
+                    className="w-9 h-9 object-contain rounded-lg"
+                  />
+                ) : (
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center shadow-md"
+                    style={{ backgroundColor: theme.primaryColor }}
+                  >
+                    <Building2 className="text-white w-5 h-5" />
+                  </div>
+                )}
               </div>
             )}
           </motion.div>

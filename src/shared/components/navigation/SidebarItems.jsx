@@ -2,19 +2,25 @@ import { NavLink } from "react-router-dom";
 import { useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SidebarContext } from "./Sidebar";
+import { useTheme } from "../../context/ThemeContext.jsx";
 
 export const SidebarItem = ({ item }) => {
   const { expanded } = useContext(SidebarContext);
+  const { theme } = useTheme();
 
   return (
     <li>
       <NavLink
         to={item.path}
+        style={({ isActive }) => ({
+          backgroundColor: isActive ? theme.primaryColor : 'transparent',
+          color: isActive ? '#ffffff' : '#374151',
+        })}
         className={({ isActive }) =>
           `flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group relative ${
             isActive
-              ? "bg-gradient-to-r from-brand-primary to-blue-600 text-white "
-              : "text-gray-700 hover:bg-gray-100 hover:text-brand-primary"
+              ? "text-white shadow-md"
+              : "text-gray-700 hover:bg-gray-100"
           }`
         }
       >

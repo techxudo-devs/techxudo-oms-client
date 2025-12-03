@@ -24,9 +24,9 @@ export const useAuthScreen = () => {
   const [login, { isLoading }] = useLoginMutation();
 
   // Set default values for development
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const defaultEmail = isDevelopment ? "admin@techxudo.com" : "";
-  const defaultPassword = isDevelopment ? "Admin@123" : "";
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const defaultEmail = isDevelopment ? "zariyemoash@gmail.com" : "";
+  const defaultPassword = isDevelopment ? "Pakistan123!" : "";
 
   const formik = useFormik({
     initialValues: {

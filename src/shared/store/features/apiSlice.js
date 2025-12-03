@@ -17,19 +17,25 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
 
-  // Handle 401 Unauthorized errors
+  // Handle 401 Unauthorized errors (but not for login endpoint)
   if (result.error && result.error.status === 401) {
-    // Show session expired toast
-    toast.error("Session Expired", {
-      description: "Your session has expired. Please login again.",
-      duration: 3000,
-    });
+    // Get the endpoint URL
+    const url = typeof args === 'string' ? args : args.url;
 
-    // Dispatch logout action
-    api.dispatch(logout());
+    // Skip redirect for login endpoint - let the login page handle the error
+    if (url !== '/auth/login') {
+      // Show session expired toast
+      toast.error("Session Expired", {
+        description: "Your session has expired. Please login again.",
+        duration: 3000,
+      });
 
-    // Redirect to login page
-    window.location.href = "/login";
+      // Dispatch logout action
+      api.dispatch(logout());
+
+      // Redirect to login page
+      window.location.href = "/login";
+    }
   }
 
   return result;
@@ -46,6 +52,7 @@ export const apiSlice = createApi({
     "EmployeeDocument",
     "Leave",
     "DocumentRequest",
+    "Organization",
   ],
   endpoints: (builder) => ({}),
 });

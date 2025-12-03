@@ -8,6 +8,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: credentials,
       }),
+      invalidatesTags: ["Organization"], // Clear organization cache on login
     }),
     logout: builder.mutation({
       query: (data) => ({

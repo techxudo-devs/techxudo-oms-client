@@ -36,6 +36,8 @@ import DocumentRequestManagement from "@/employee/pages/document-requests/Docume
 import AttendancePage from "@/employee/pages/attendance/AttendancePage";
 import AttendanceHistoryPage from "@/employee/pages/attendance/AttendanceHistoryPage";
 import SalaryHistoryPage from "@/employee/pages/salary/SalaryHistoryPage";
+import LandingPage from "@/pages/public/LandingPage";
+import RegisterPage from "@/pages/public/RegisterPage";
 
 // Route configurations
 const adminRoutes = [
@@ -87,10 +89,13 @@ const sharedRoutes = [
 ];
 
 const AppRoutes = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, setupCompleted } = useAuth();
 
   const redirectToDashboard = () =>
     isAdmin ? "/admin/dashboard" : "/employee/dashboard";
+
+  // If user is logged in but setup incomplete, redirect to setup
+  const shouldRedirectToSetup = user && setupCompleted === false;
 
   const renderRoutes = (routesArray) =>
     routesArray.map((route) => (
@@ -100,40 +105,60 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
       <Route
-        path="/login"
+        path="/register"
         element={
-          user ? <Navigate to={redirectToDashboard()} replace /> : <Login />
+          user ? (
+            shouldRedirectToSetup ? (
+              <Navigate to="/setup" replace />
+            ) : (
+              <Navigate to={redirectToDashboard()} replace />
+            )
+          ) : (
+            <RegisterPage />
+          )
         }
       />
       <Route path="/onboarding/:token" element={<OnboardingPage />} />
 
-      {/* Admin Routes */}
+      {/* Admin Routes - Setup wizard shown as modal if incomplete */}
       <Route element={<PrivateRoute allowAdmin />}>
-        <Route element={<Layout />}>{renderRoutes(adminRoutes)}</Route>
+        <Route element={<Layout />}>
+          {renderRoutes(adminRoutes)}
+        </Route>
       </Route>
 
-      {/* Employee Routes */}
+      {/* Employee Routes - Block if setup incomplete (employees can't access until org setup done) */}
       <Route element={<PrivateRoute allowEmployee />}>
-        <Route element={<Layout />}>{renderRoutes(employeeRoutes)}</Route>
+        <Route
+          element={
+            shouldRedirectToSetup ? (
+              <Navigate to="/admin/dashboard" replace />
+            ) : (
+              <Layout />
+            )
+          }
+        >
+          {renderRoutes(employeeRoutes)}
+        </Route>
       </Route>
 
-      {/* Shared Routes */}
+      {/* Shared Routes - Block if setup incomplete */}
       <Route element={<PrivateRoute allowBoth />}>
-        <Route element={<Layout />}>{renderRoutes(sharedRoutes)}</Route>
+        <Route
+          element={
+            shouldRedirectToSetup ? (
+              <Navigate to="/setup" replace />
+            ) : (
+              <Layout />
+            )
+          }
+        >
+          {renderRoutes(sharedRoutes)}
+        </Route>
       </Route>
-
-      {/* Default Redirect */}
-      <Route
-        path="/"
-        element={
-          user ? (
-            <Navigate to={redirectToDashboard()} replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
-      />
 
       {/* 404 Redirect */}
       <Route path="*" element={<Navigate to="/" replace />} />

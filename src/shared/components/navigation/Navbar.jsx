@@ -5,15 +5,18 @@ import {
   X,
   Bell,
   Search,
+  Building2,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useLogoutMutation } from "../../store/features/userApiSlice";
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/features/authSlice";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext.jsx";
 
 export function Navbar({ expanded, setExpanded }) {
   const { user, role } = useAuth();
+  const { logo, companyName, theme } = useTheme();
   const [logoutMutation] = useLogoutMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -36,7 +39,8 @@ export function Navbar({ expanded, setExpanded }) {
 
   return (
     <nav
-      className={`sticky top-0 rounded-b-[30px] bg-blue-900 backdrop-blur-xl border-b border-gray-200/80 z-50 transition-all duration-300 ease-in-out ${
+      style={{ backgroundColor: theme.primaryColor }}
+      className={`sticky top-0 rounded-b-[30px] backdrop-blur-xl border-b border-gray-200/80 z-50 transition-all duration-300 ease-in-out ${
         expanded ? "md:ml-[240px]" : "md:ml-[72px]"
       }`}
     >

@@ -1,6 +1,7 @@
 import InputField from "../UI/Forms/InputField";
 import React, { useState } from "react";
 import { Mail, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const LoginForm = ({ formik }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,12 +33,12 @@ export const LoginForm = ({ formik }) => {
           />
           <span className="ml-2 text-gray-600">Remember me</span>
         </label>
-        <a
-          href="/forgot-password"
+        <Link
+          to="/forgot-password"
           className="font-medium text-indigo-600 hover:text-indigo-500"
         >
           Forgot password?
-        </a>
+        </Link>
       </div>
     </>
   );
