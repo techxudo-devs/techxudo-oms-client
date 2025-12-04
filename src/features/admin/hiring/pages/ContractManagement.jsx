@@ -28,7 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useManageContracts from "../hooks/useManageContracts";
-import ContractDetailsModal from "../components/ContractDetailsModal";
+import ContractDetailsModal from "../components/ContractDetailModal";
 import { format } from "date-fns";
 
 const ContractManagementPage = () => {

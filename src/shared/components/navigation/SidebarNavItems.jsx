@@ -10,6 +10,8 @@ import {
   DollarSign,
   DownloadCloud,
   Banknote,
+  UserPlus,
+  Briefcase,
 } from "lucide-react";
 
 /* ------------------------------
@@ -25,6 +27,11 @@ export const adminNavItems = [
     text: "Employees",
     icon: <Users size={20} />,
     path: "/admin/employees",
+  },
+  {
+    text: "Hiring",
+    icon: <UserPlus size={20} />,
+    path: "/admin/hiring/appointments",
   },
   {
     text: "Documents",

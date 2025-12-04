@@ -57,6 +57,7 @@ const AppointmentListPage = () => {
     nextPage,
     prevPage,
   } = useManageAppointments();
+  console.log(appointments);
 
   // Status badge component
   const StatusBadge = ({ status }) => {
@@ -218,7 +219,7 @@ const AppointmentListPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {appointments.map((appointment) => (
+                {appointments?.appointmentsLetter.map((appointment) => (
                   <TableRow key={appointment._id}>
                     <TableCell>
                       <div>
@@ -237,7 +238,10 @@ const AppointmentListPage = () => {
                       {appointment.department}
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
-                      {format(new Date(appointment.joiningDate), "MMM dd, yyyy")}
+                      {format(
+                        new Date(appointment.joiningDate),
+                        "MMM dd, yyyy"
+                      )}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={appointment.status} />

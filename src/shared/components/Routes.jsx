@@ -39,6 +39,16 @@ import SalaryHistoryPage from "@/employee/pages/salary/SalaryHistoryPage";
 import LandingPage from "@/pages/public/LandingPage";
 import RegisterPage from "@/pages/public/RegisterPage";
 
+// Admin Hiring Pages
+import CreateAppointmentPage from "@/features/admin/hiring/pages/CreateAppointmentPage";
+import AppointmentListPage from "@/features/admin/hiring/pages/AppointmentListPage";
+import EmploymentFormReviewPage from "@/features/admin/hiring/pages/EmploymentFormReviewPage";
+import ContractManagementPage from "@/features/admin/hiring/pages/ContractManagement";
+// Employment Flow Pages (Public - Token-based access)
+import AppointmentLetterView from "@/features/employe/employment/pages/AppointmentLetterView";
+import EmploymentFormPage from "@/features/employe/employment/pages/EmploymentFormPage";
+import ContractSigningPage from "@/features/employe/employment/pages/ContractSigningPage";
+import SetPasswordPage from "@/features/employe/employment/pages/SetPasswordPage";
 // Route configurations
 const adminRoutes = [
   { path: "/admin/dashboard", element: <AdminDashboard /> },
@@ -56,6 +66,14 @@ const adminRoutes = [
   { path: "/admin/salary/all", element: <AllSalariesPage /> },
   { path: "/admin/salary/create", element: <CreateSalaryPage /> },
   { path: "/admin/salary/bulk-generate", element: <BulkGeneratePage /> },
+  // Hiring Management Routes
+  { path: "/admin/hiring/appointments", element: <AppointmentListPage /> },
+  {
+    path: "/admin/hiring/appointments/create",
+    element: <CreateAppointmentPage />,
+  },
+  { path: "/admin/hiring/forms", element: <EmploymentFormReviewPage /> },
+  { path: "/admin/hiring/contracts", element: <ContractManagementPage /> },
 ];
 
 const employeeRoutes = [
@@ -123,11 +141,24 @@ const AppRoutes = () => {
       />
       <Route path="/onboarding/:token" element={<OnboardingPage />} />
 
+      {/* Employment Flow Routes - Public (Token-based access) */}
+      <Route
+        path="/employment/appointment/:token"
+        element={<AppointmentLetterView />}
+      />
+      <Route path="/employment/form/:token" element={<EmploymentFormPage />} />
+      <Route
+        path="/employment/contract/:token"
+        element={<ContractSigningPage />}
+      />
+      <Route
+        path="/employment/set-password/:token"
+        element={<SetPasswordPage />}
+      />
+
       {/* Admin Routes - Setup wizard shown as modal if incomplete */}
       <Route element={<PrivateRoute allowAdmin />}>
-        <Route element={<Layout />}>
-          {renderRoutes(adminRoutes)}
-        </Route>
+        <Route element={<Layout />}>{renderRoutes(adminRoutes)}</Route>
       </Route>
 
       {/* Employee Routes - Block if setup incomplete (employees can't access until org setup done) */}

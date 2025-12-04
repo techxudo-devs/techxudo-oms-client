@@ -126,4 +126,5 @@ export const {
 
   // Stats
   useGetHiringStatsQuery,
+  useSendContractToEmployeeMutation,
 } = hiringApiSlice;
