@@ -125,7 +125,12 @@ export const employmentApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ============ Password Setup Endpoint ============
-
+    verifyToken: builder.mutation({
+      query: (token) => ({
+        url: `/auth/verify-token/${token}`,
+        method: "GET",
+      }),
+    }),
     // Set password after contract signed
     setEmployeePassword: builder.mutation({
       query: ({ token, password }) => ({
@@ -159,5 +164,6 @@ export const {
   useListContractsQuery,
 
   // Password setup hook
+  useVerifyTokenMutation,
   useSetEmployeePasswordMutation,
 } = employmentApiSlice;
