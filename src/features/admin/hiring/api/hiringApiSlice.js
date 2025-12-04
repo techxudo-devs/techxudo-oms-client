@@ -84,6 +84,14 @@ export const hiringApiSlice = apiSlice.injectEndpoints({
       providesTags: ["Contracts"],
     }),
 
+    sendContractToEmployee: builder.mutation({
+      query: (id) => ({
+        url: `/contracts/${id}/send`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [{ type: "Contracts", id }],
+    }),
+
     // Get contract details
     getContractById: builder.query({
       query: (id) => `/contracts/${id}`,
