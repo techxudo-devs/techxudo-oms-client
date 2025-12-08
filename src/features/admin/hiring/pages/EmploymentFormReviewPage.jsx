@@ -29,7 +29,9 @@ import {
 import useReviewEmploymentForm from "../hooks/useReviewEmploymentForm";
 import EmploymentFormDetailsModal from "../components/EmploymentFormDetailsModal";
 import ReviewConfirmationModal from "../components/ReviewConfirmationModal";
+import CreateContractModal from "../components/CreateContractModal";
 import { format } from "date-fns";
+import { FileSignature } from "lucide-react";
 
 /**
  * EmploymentFormReviewPage - Admin reviews submitted employment forms
@@ -62,6 +64,13 @@ const EmploymentFormReviewPage = () => {
 
   const [feedback, setFeedback] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [createContractModalOpen, setCreateContractModalOpen] = useState(false);
+  const [formForContract, setFormForContract] = useState(null);
+
+  const openCreateContractModal = (form) => {
+    setFormForContract(form);
+    setCreateContractModalOpen(true);
+  };
 
   // Status badge component
   const StatusBadge = ({ status }) => {
@@ -194,10 +203,22 @@ const EmploymentFormReviewPage = () => {
                       <StatusBadge status={form.status} />
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm" onClick={() => viewForm(form._id)}>
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => viewForm(form._id)}>
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
+                        {form.status === "approved" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openCreateContractModal(form)}
+                          >
+                            <FileSignature className="w-4 h-4 mr-1" />
+                            Create Contract
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -246,6 +267,12 @@ const EmploymentFormReviewPage = () => {
         onSubmit={handleSubmitReview}
         isSubmitting={isSubmitting}
         error={submitError}
+      />
+
+      <CreateContractModal
+        open={createContractModalOpen}
+        onClose={() => setCreateContractModalOpen(false)}
+        employmentForm={formForContract}
       />
     </div>
   );

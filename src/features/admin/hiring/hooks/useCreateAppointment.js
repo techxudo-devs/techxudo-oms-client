@@ -68,7 +68,27 @@ const useCreateAppointment = () => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        await createAppointment(values).unwrap();
+        // Transform data to match backend schema
+        const appointmentData = {
+          employeeName: values.candidateName,
+          employeeEmail: values.candidateEmail,
+          letterContent: {
+            subject: `Appointment Letter - ${values.position}`,
+            body: `<p>Dear ${values.candidateName},</p><p>We are pleased to offer you the position of ${values.position} at TechXudo.</p>`, // Simple default body, backend might generate full template
+            position: values.position,
+            department: values.department,
+            joiningDate: values.joiningDate,
+            salary: Number(values.salary),
+            benefits: values.benefits,
+            employmentType: values.employmentType,
+            probationPeriod: values.probationPeriod,
+            workLocation: values.workLocation,
+            reportingTo: values.reportingTo,
+            additionalTerms: values.additionalTerms,
+          },
+        };
+
+        await createAppointment(appointmentData).unwrap();
         setSubmitSuccess(true);
         formik.resetForm();
       } catch (err) {

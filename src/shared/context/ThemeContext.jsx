@@ -25,7 +25,7 @@ export const ThemeProvider = ({ children }) => {
 
   // Fetch organization data
   const { data: organizationData } = useGetCurrentOrganizationQuery(undefined, {
-    skip: !user, // Only fetch if user is logged in
+    skip: !user || !user.organizationId, // Only fetch if user is logged in and has an organization
     refetchOnMountOrArgChange: true,
   });
 

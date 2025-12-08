@@ -15,6 +15,7 @@ export const useAuth = () => {
         role: decode.role,
         setupCompleted: decode.setupCompleted,
         organizationSlug: decode.organizationSlug,
+        organizationId: decode.organizationId,
       };
     } catch (error) {
       console.error("Invalid token", error);

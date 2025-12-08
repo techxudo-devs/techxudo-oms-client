@@ -30,11 +30,9 @@ const useEmploymentForm = (token) => {
     { id: "policies", label: "Policies" },
   ];
 
-  // RTK Query
   const { data: formResponse, isLoading } = useGetEmploymentFormByTokenQuery(token, { skip: !token });
   const [submitForm, { isLoading: isSubmitting }] = useSubmitEmploymentFormMutation();
 
-  // Formik
   const formik = useFormik({
     initialValues,
     validationSchema: validationSchemas[currentStep],
@@ -50,7 +48,7 @@ const useEmploymentForm = (token) => {
     },
   });
 
-  // Image upload handler
+ 
   const handleImageUpload = async (file, fieldName) => {
     const uploadType = fieldName.replace("Image", "");
     setUploadingImages((prev) => ({ ...prev, [uploadType]: true }));
@@ -67,7 +65,6 @@ const useEmploymentForm = (token) => {
     }
   };
 
-  // Step navigation with validation
   const nextStep = async () => {
     const errors = await formik.validateForm();
     const currentFields = stepFields[currentStep];

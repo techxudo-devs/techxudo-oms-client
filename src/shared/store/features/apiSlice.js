@@ -22,6 +22,8 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     // Get the endpoint URL
     const url = typeof args === 'string' ? args : args.url;
 
+    console.error("401 Error detected at:", url, result.error);
+
     // Skip redirect for login endpoint - let the login page handle the error
     if (url !== '/auth/login') {
       // Show session expired toast

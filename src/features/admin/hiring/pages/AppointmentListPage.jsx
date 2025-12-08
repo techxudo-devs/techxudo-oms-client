@@ -8,6 +8,8 @@ import {
   ChevronRight,
   Loader2,
   RefreshCw,
+  Plus,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,12 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import {
   Table,
   TableBody,
@@ -33,11 +30,11 @@ import {
 } from "@/components/ui/table";
 import useManageAppointments from "../hooks/useManageAppointments";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
+import AppointmentDetailsModal from "../components/AppointmentDetailsModal";
+import StatusBadge from "../components/StatusBadge";
 
-/**
- * AppointmentListPage - Admin views all appointment letters
- * UI only - Business logic in useManageAppointments hook
- */
+
 const AppointmentListPage = () => {
   const {
     appointments,
@@ -56,50 +53,10 @@ const AppointmentListPage = () => {
     goToPage,
     nextPage,
     prevPage,
+    sendEmploymentForm,
+    isSendingForm,
   } = useManageAppointments();
-  console.log(appointments);
-
-  // Status badge component
-  const StatusBadge = ({ status }) => {
-    const config = {
-      pending: {
-        icon: Clock,
-        bg: "bg-yellow-100",
-        text: "text-yellow-700",
-        label: "Pending",
-      },
-      accepted: {
-        icon: CheckCircle,
-        bg: "bg-green-100",
-        text: "text-green-700",
-        label: "Accepted",
-      },
-      rejected: {
-        icon: XCircle,
-        bg: "bg-red-100",
-        text: "text-red-700",
-        label: "Rejected",
-      },
-      expired: {
-        icon: AlertCircle,
-        bg: "bg-gray-100",
-        text: "text-gray-700",
-        label: "Expired",
-      },
-    };
-
-    const { icon: Icon, bg, text, label } = config[status] || config.pending;
-
-    return (
-      <span
-        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${bg} ${text}`}
-      >
-        <Icon className="w-3 h-3" />
-        {label}
-      </span>
-    );
-  };
-
+  
   // Loading state
   if (isLoading) {
     return (
@@ -124,18 +81,27 @@ const AppointmentListPage = () => {
             Manage all sent appointment letters
           </p>
         </div>
-        <Button
-          onClick={() => refetch()}
-          variant="outline"
-          size="sm"
-          disabled={isFetching}
-        >
-          {isFetching ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <RefreshCw className="w-4 h-4" />
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild className="flex items-center gap-2">
+            <Link to="/admin/hiring/appointments/create">
+              <Plus className="w-4 h-4" />
+              Create Appointment
+            </Link>
+          </Button>
+          <Button
+            onClick={() => refetch()}
+            variant="outline"
+            size="icon"
+            disabled={isFetching}
+            title="Refresh List"
+          >
+            {isFetching ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Statistics Cards */}
@@ -219,43 +185,63 @@ const AppointmentListPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {appointments?.appointmentsLetter.map((appointment) => (
+                {appointments?.map((appointment) => (
                   <TableRow key={appointment._id}>
                     <TableCell>
                       <div>
                         <p className="text-sm font-medium text-gray-900">
-                          {appointment.candidateName}
+                          {appointment.employeeName}
                         </p>
                         <p className="text-sm text-gray-500">
-                          {appointment.candidateEmail}
+                          {appointment.employeeEmail}
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-gray-900">
-                      {appointment.position}
+                      {appointment.letterContent?.position}
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
-                      {appointment.department}
+                      {appointment.letterContent?.department}
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
-                      {format(
-                        new Date(appointment.joiningDate),
-                        "MMM dd, yyyy"
-                      )}
+                      {appointment.letterContent?.joiningDate &&
+                        format(
+                          new Date(appointment.letterContent.joiningDate),
+                          "MMM dd, yyyy"
+                        )}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={appointment.status} />
                     </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => viewAppointment(appointment._id)}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                    </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => viewAppointment(appointment._id)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                          {appointment.status === "accepted" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => sendEmploymentForm(appointment)}
+                              disabled={isSendingForm}
+                            >
+                              {isSendingForm ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <FileText className="w-4 h-4 mr-1" />
+                                  Send Form
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -290,131 +276,11 @@ const AppointmentListPage = () => {
         )}
       </div>
 
-      {/* Details Modal */}
-      <Dialog open={!!selectedAppointment} onOpenChange={closeDetails}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Appointment Letter Details</DialogTitle>
-          </DialogHeader>
-
-          {isLoadingDetails ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-gray-900" />
-            </div>
-          ) : selectedAppointment ? (
-            <div className="space-y-6">
-              {/* Status */}
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm text-gray-600">Status</p>
-                  <StatusBadge status={selectedAppointment.status} />
-                </div>
-                {selectedAppointment.respondedAt && (
-                  <div>
-                    <p className="text-sm text-gray-600">Responded At</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {format(
-                        new Date(selectedAppointment.respondedAt),
-                        "MMM dd, yyyy HH:mm"
-                      )}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Candidate Info */}
-              <div className="grid md:grid-cols-2 gap-4 border-t pt-4">
-                <div>
-                  <p className="text-sm text-gray-600">Candidate Name</p>
-                  <p className="font-medium text-gray-900">
-                    {selectedAppointment.candidateName}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Email</p>
-                  <p className="font-medium text-gray-900">
-                    {selectedAppointment.candidateEmail}
-                  </p>
-                </div>
-              </div>
-
-              {/* Position Details */}
-              <div className="grid md:grid-cols-2 gap-4 border-t pt-4">
-                <div>
-                  <p className="text-sm text-gray-600">Position</p>
-                  <p className="font-medium text-gray-900">
-                    {selectedAppointment.position}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Department</p>
-                  <p className="font-medium text-gray-900">
-                    {selectedAppointment.department}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Employment Type</p>
-                  <p className="font-medium text-gray-900 capitalize">
-                    {selectedAppointment.employmentType.replace("-", " ")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Joining Date</p>
-                  <p className="font-medium text-gray-900">
-                    {format(
-                      new Date(selectedAppointment.joiningDate),
-                      "MMM dd, yyyy"
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* Compensation */}
-              <div className="grid md:grid-cols-2 gap-4 border-t pt-4">
-                <div>
-                  <p className="text-sm text-gray-600">Monthly Salary</p>
-                  <p className="font-medium text-gray-900">
-                    PKR {selectedAppointment.salary?.toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Work Location</p>
-                  <p className="font-medium text-gray-900">
-                    {selectedAppointment.workLocation}
-                  </p>
-                </div>
-              </div>
-
-              {/* Benefits */}
-              {selectedAppointment.benefits?.length > 0 && (
-                <div className="border-t pt-4">
-                  <p className="text-sm text-gray-600 mb-2">Benefits</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedAppointment.benefits.map((benefit, index) => (
-                      <span
-                        key={index}
-                        className="bg-gray-100 px-3 py-1 rounded-full text-sm"
-                      >
-                        {benefit}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Additional Info */}
-              {selectedAppointment.additionalTerms && (
-                <div className="border-t pt-4">
-                  <p className="text-sm text-gray-600 mb-2">Additional Terms</p>
-                  <p className="text-sm text-gray-900">
-                    {selectedAppointment.additionalTerms}
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      <AppointmentDetailsModal
+        selectedAppointment={selectedAppointment}
+        isLoadingDetails={isLoadingDetails}
+        closeDetails={closeDetails}
+      />
     </div>
   );
 };

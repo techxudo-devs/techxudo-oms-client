@@ -116,6 +116,7 @@ const LeaveRequestCard = ({
                   </h3>
                   <div className="flex items-center gap-2 mt-1">
                     <Briefcase className="w-3.5 h-3.5 text-gray-400" />
+                    
                     <span className="text-sm text-gray-600 font-medium">
                       {request.type} Leave
                     </span>

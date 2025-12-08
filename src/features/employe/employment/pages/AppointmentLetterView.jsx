@@ -11,12 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import useAppointmentLetter from "../hooks/useAppointmentLetter";
 
-/**
- * AppointmentLetterView - UI Component
- * Public page for viewing and responding to appointment letter
- * Route: /employment/appointment/:token
- * Business logic handled by useAppointmentLetter hook
- */
+
 const AppointmentLetterView = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -32,6 +27,7 @@ const AppointmentLetterView = () => {
     handleAccept,
     handleReject,
   } = useAppointmentLetter(token);
+  
 
   // Loading state
   if (isLoading) {
@@ -99,7 +95,9 @@ const AppointmentLetterView = () => {
           </p>
           <p className="text-sm text-gray-500 mt-4">
             Status:{" "}
-            <span className="font-semibold capitalize">{appointment.status}</span>
+            <span className="font-semibold capitalize">
+              {appointment?.status || "Unknown"}
+            </span>
           </p>
         </div>
       </div>

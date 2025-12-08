@@ -143,7 +143,7 @@ const AppRoutes = () => {
 
       {/* Employment Flow Routes - Public (Token-based access) */}
       <Route
-        path="/employment/appointment/:token"
+        path="/onboarding/appointment/:token"
         element={<AppointmentLetterView />}
       />
       <Route path="/employment/form/:token" element={<EmploymentFormPage />} />

@@ -3,6 +3,7 @@ import {
   useListAppointmentsQuery,
   useGetAppointmentByIdQuery,
 } from "../api/hiringApiSlice";
+import { useCreateEmploymentFormMutation } from "../../../employe/employment/api/employmentApiSlice";
 
 /**
  * Hook for managing appointment letters list
@@ -35,16 +36,20 @@ const useManageAppointments = () => {
 
   // Fetch single appointment details (when selected)
   const {
-    data: selectedAppointment,
+    data: selectedAppointmentData,
     isLoading: isLoadingDetails,
     isFetching: isFetchingDetails,
   } = useGetAppointmentByIdQuery(selectedAppointmentId, {
     skip: !selectedAppointmentId,
   });
 
+  const selectedAppointment = selectedAppointmentId
+    ? selectedAppointmentData?.data || null
+    : null;
+
   // Extract data with fallbacks
-  const appointments = appointmentsData?.data || [];
-  const pagination = appointmentsData?.pagination || {
+  const appointments = appointmentsData?.data?.appointmentLetters || [];
+  const pagination = appointmentsData?.data?.pagination || {
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
@@ -118,6 +123,32 @@ const useManageAppointments = () => {
     }
   };
 
+  // Employment Form Mutation
+  const [createEmploymentForm, { isLoading: isSendingForm }] =
+    useCreateEmploymentFormMutation();
+
+  const sendEmploymentForm = async (appointment) => {
+    try {
+      const employmentFormData = {
+        organizationId: appointment.organizationId,
+        appointmentLetterId: appointment._id,
+        employeeEmail: appointment.employeeEmail,
+        personalInfo: {
+          legalName: appointment.employeeName,
+        },
+        contactInfo: {
+          email: appointment.employeeEmail,
+        },
+        status: "draft",
+      };
+      await createEmploymentForm(employmentFormData).unwrap();
+      return true;
+    } catch (error) {
+      console.error("Failed to send employment form:", error);
+      return false;
+    }
+  };
+
   return {
     // Data
     appointments,
@@ -145,6 +176,10 @@ const useManageAppointments = () => {
     goToPage,
     nextPage,
     prevPage,
+
+    // Employment Form
+    sendEmploymentForm,
+    isSendingForm,
   };
 };
 

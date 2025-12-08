@@ -22,9 +22,9 @@ const useAppointmentLetter = (token) => {
     isLoading,
     error: fetchError,
     refetch,
-  } = useGetAppointmentByTokenQuery(token, {
-    skip: !token,
-  });
+  } = useGetAppointmentByTokenQuery(token)
+  console.log('Appointmen',appointmentData);
+
 
   // RTK Query - Respond to appointment mutation
   const [respondToAppointment, { isLoading: isSubmitting }] =
@@ -57,9 +57,7 @@ const useAppointmentLetter = (token) => {
     }
   };
 
-  /**
-   * Check if appointment can be responded to
-   */
+  
   const canRespond =
     appointmentData?.data?.status === "sent" ||
     appointmentData?.data?.status === "viewed";
