@@ -30,8 +30,14 @@ const useEmploymentForm = (token) => {
     { id: "policies", label: "Policies" },
   ];
 
-  const { data: formResponse, isLoading } = useGetEmploymentFormByTokenQuery(token, { skip: !token });
-  const [submitForm, { isLoading: isSubmitting }] = useSubmitEmploymentFormMutation();
+  const {
+    data: formResponse,
+    isLoading,
+    error,
+    isError,
+  } = useGetEmploymentFormByTokenQuery(token, { skip: !token });
+  const [submitForm, { isLoading: isSubmitting }] =
+    useSubmitEmploymentFormMutation();
 
   const formik = useFormik({
     initialValues,
@@ -48,20 +54,27 @@ const useEmploymentForm = (token) => {
     },
   });
 
- 
   const handleImageUpload = async (file, fieldName) => {
+    if (!file) return;
+
     const uploadType = fieldName.replace("Image", "");
+
     setUploadingImages((prev) => ({ ...prev, [uploadType]: true }));
 
-    const result = await uploadToCloudinary(file);
+    try {
+      const result = await uploadToCloudinary(file);
 
-    setUploadingImages((prev) => ({ ...prev, [uploadType]: false }));
-
-    if (result.success) {
-      formik.setFieldValue(fieldName, result.url);
-      formik.setFieldError(fieldName, undefined);
-    } else {
-      formik.setFieldError(fieldName, result.error);
+      if (result.success) {
+        formik.setFieldValue(fieldName, result.url);
+        formik.setFieldError(fieldName, undefined);
+      } else {
+        formik.setFieldError(fieldName, result.error);
+      }
+    } catch (error) {
+      console.log(error);
+      formik.setFieldError(fieldName, "Image Uplaod Again Please Try Again");
+    } finally {
+      setUploadingImages((prev) => ({ ...prev, [uploadType]: false }));
     }
   };
 
@@ -98,9 +111,36 @@ const useEmploymentForm = (token) => {
       setSubmitSuccess(true);
       return { success: true };
     } catch (err) {
-      const error = err?.data?.message || "Failed to submit form";
-      formik.setFieldError("submit", error);
-      return { success: false, error };
+      console.error("Form submission error:", err);
+
+      // Extract error message from different possible error structures
+      let errorMessage = "Failed to submit form. Please try again.";
+
+      if (err?.data?.error) {
+        // Backend returned a specific error message
+        errorMessage = err.data.error;
+      } else if (err?.error) {
+        // RTK Query error
+        errorMessage = err.error;
+      } else if (err?.message) {
+        // Standard error object
+        errorMessage = err.message;
+      }
+
+      // Handle specific error cases with user-friendly messages
+      if (err?.status === 404) {
+        errorMessage =
+          "Employment form not found. The link may be invalid or expired.";
+      } else if (err?.status === 409) {
+        errorMessage = "This form has already been submitted.";
+      } else if (err?.status === 410) {
+        errorMessage =
+          "This employment form link has expired. Please contact HR for a new link.";
+      }
+
+      formik.setFieldError("submit", errorMessage);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -121,6 +161,8 @@ const useEmploymentForm = (token) => {
     formik,
     policies: formResponse?.data?.policies || [],
     isLoading,
+    isError,
+    error,
     isSubmitting,
     uploadingImages,
     submitSuccess,

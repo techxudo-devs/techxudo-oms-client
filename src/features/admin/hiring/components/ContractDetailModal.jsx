@@ -89,22 +89,45 @@ const ContractDetailsModal = ({
             <div className="grid md:grid-cols-2 gap-4 border-t pt-4">
               <div>
                 <p className="text-sm text-gray-600">Position</p>
-                <p className="font-medium">{contract.position}</p>
+                <p className="font-medium">
+                  {contract.contractDetails?.position || "N/A"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Department</p>
-                <p className="font-medium">{contract.department}</p>
+                <p className="font-medium">
+                  {contract.contractDetails?.department || "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Employment Type</p>
+                <p className="font-medium capitalize">
+                  {contract.contractDetails?.employmentType || "N/A"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Start Date</p>
                 <p className="font-medium">
-                  {format(new Date(contract.startDate), "MMM dd, yyyy")}
+                  {contract.contractDetails?.startDate
+                    ? format(
+                        new Date(contract.contractDetails.startDate),
+                        "MMM dd, yyyy"
+                      )
+                    : "N/A"}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Salary</p>
+                <p className="text-sm text-gray-600">Base Salary</p>
                 <p className="font-medium">
-                  PKR {contract.salary?.toLocaleString()}
+                  PKR{" "}
+                  {contract.contractDetails?.compensation?.baseSalary?.toLocaleString() ||
+                    "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Probation Period</p>
+                <p className="font-medium">
+                  {contract.contractDetails?.probationPeriod || 0} months
                 </p>
               </div>
             </div>

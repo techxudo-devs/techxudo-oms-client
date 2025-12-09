@@ -43,6 +43,7 @@ const EmploymentFormReviewPage = () => {
     forms,
     pagination,
     selectedForm,
+    selectedFormData,
     isLoading,
     isFetching,
     isLoadingDetails,
@@ -53,6 +54,7 @@ const EmploymentFormReviewPage = () => {
     viewForm,
     closeDetails,
     refetch,
+    detailsModalOpen,
     reviewModalOpen,
     reviewAction,
     openReviewModal,
@@ -95,10 +97,17 @@ const EmploymentFormReviewPage = () => {
       },
     };
 
-    const { icon: Icon, bg, text, label } = config[status] || config.pending_review;
+    const {
+      icon: Icon,
+      bg,
+      text,
+      label,
+    } = config[status] || config.pending_review;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${bg} ${text}`}>
+      <span
+        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${bg} ${text}`}
+      >
         <Icon className="w-3 h-3" />
         {label}
       </span>
@@ -135,10 +144,21 @@ const EmploymentFormReviewPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Employment Forms</h1>
-          <p className="text-sm text-gray-600 mt-1">Review submitted employment forms</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Review submitted employment forms
+          </p>
         </div>
-        <Button onClick={() => refetch()} variant="outline" size="sm" disabled={isFetching}>
-          {isFetching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+        <Button
+          onClick={() => refetch()}
+          variant="outline"
+          size="sm"
+          disabled={isFetching}
+        >
+          {isFetching ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <RefreshCw className="w-4 h-4" />
+          )}
         </Button>
       </div>
 
@@ -146,8 +166,13 @@ const EmploymentFormReviewPage = () => {
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
-            <Select value={filters.status} onValueChange={(value) => updateFilter("status", value)}>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              Status
+            </label>
+            <Select
+              value={filters.status}
+              onValueChange={(value) => updateFilter("status", value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -190,7 +215,9 @@ const EmploymentFormReviewPage = () => {
                         <p className="text-sm font-medium text-gray-900">
                           {form.personalInfo?.legalName}
                         </p>
-                        <p className="text-sm text-gray-500">{form.contactInfo?.email}</p>
+                        <p className="text-sm text-gray-500">
+                          {form.contactInfo?.email}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-gray-900">
@@ -204,7 +231,11 @@ const EmploymentFormReviewPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => viewForm(form._id)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => viewForm(form._id)}
+                        >
                           <Eye className="w-4 h-4 mr-1" />
                           View
                         </Button>
@@ -228,10 +259,16 @@ const EmploymentFormReviewPage = () => {
             {/* Pagination */}
             <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t">
               <div className="text-sm text-gray-600">
-                Page {pagination.currentPage} of {pagination.totalPages} ({pagination.totalItems} total)
+                Page {pagination.currentPage} of {pagination.totalPages} (
+                {pagination.totalItems} total)
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={prevPage} disabled={filters.page === 1}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={prevPage}
+                  disabled={filters.page === 1}
+                >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 <Button
@@ -250,9 +287,9 @@ const EmploymentFormReviewPage = () => {
 
       {/* Modals */}
       <EmploymentFormDetailsModal
-        open={!!selectedForm && !reviewModalOpen}
+        open={detailsModalOpen}
         onClose={closeDetails}
-        selectedForm={selectedForm}
+        selectedForm={selectedFormData}
         isLoading={isLoadingDetails}
         onApprove={() => openReviewModal("approve")}
         onReject={() => openReviewModal("reject")}

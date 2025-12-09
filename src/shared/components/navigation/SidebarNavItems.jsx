@@ -31,7 +31,7 @@ export const adminNavItems = [
   {
     text: "Hiring",
     icon: <UserPlus size={20} />,
-    path: "/admin/hiring/appointments",
+    path: "/admin/hiring",
   },
   {
     text: "Documents",

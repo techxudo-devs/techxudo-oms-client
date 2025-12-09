@@ -45,6 +45,7 @@ const useManageContracts = () => {
 
   // Extract data with fallbacks
   const contracts = contractsData?.data || [];
+
   const pagination = contractsData?.pagination || {
     currentPage: 1,
     totalPages: 1,

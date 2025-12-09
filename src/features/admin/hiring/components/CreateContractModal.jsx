@@ -44,21 +44,39 @@ const CreateContractModal = ({ open, onClose, employmentForm }) => {
     if (!employmentForm) return;
 
     try {
+      // Structure data to match EmployeeContract model
       const contractData = {
-        employeeName: employmentForm.personalInfo?.legalName || employmentForm.employeeName,
-        employeeEmail: employmentForm.contactInfo?.email || employmentForm.employeeEmail,
-        position: formData.position,
-        department: formData.department,
-        startDate: formData.startDate,
-        salary: Number(formData.salary),
-        status: "draft",
         organizationId: employmentForm.organizationId,
+        employmentFormId: employmentForm._id,
+        // employeeId will be set after employee account is created
+        employeeName:
+          employmentForm.personalInfo?.legalName || employmentForm.employeeName,
+        employeeEmail:
+          employmentForm.contactInfo?.email || employmentForm.employeeEmail,
+        contractDetails: {
+          position: formData.position,
+          department: formData.department,
+          employmentType: "full-time", // Default to full-time
+          startDate: formData.startDate,
+          probationPeriod: 3, // Default 3 months
+          compensation: {
+            baseSalary: Number(formData.salary),
+            paymentFrequency: "monthly",
+          },
+          workingHours: {
+            hoursPerWeek: 40,
+          },
+          noticePeriod: 30, // Default 30 days
+        },
       };
 
       await createContract(contractData).unwrap();
       onClose();
     } catch (error) {
       console.error("Failed to create contract:", error);
+      alert(
+        error?.data?.error || "Failed to create contract. Please try again."
+      );
     }
   };
 
@@ -75,7 +93,11 @@ const CreateContractModal = ({ open, onClose, employmentForm }) => {
           <div className="space-y-2">
             <Label>Employee Name</Label>
             <Input
-              value={employmentForm.personalInfo?.legalName || employmentForm.employeeName || ""}
+              value={
+                employmentForm.personalInfo?.legalName ||
+                employmentForm.employeeName ||
+                ""
+              }
               disabled
               className="bg-gray-50"
             />
@@ -84,7 +106,11 @@ const CreateContractModal = ({ open, onClose, employmentForm }) => {
           <div className="space-y-2">
             <Label>Email</Label>
             <Input
-              value={employmentForm.contactInfo?.email || employmentForm.employeeEmail || ""}
+              value={
+                employmentForm.contactInfo?.email ||
+                employmentForm.employeeEmail ||
+                ""
+              }
               disabled
               className="bg-gray-50"
             />

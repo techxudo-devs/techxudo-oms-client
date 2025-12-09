@@ -40,10 +40,7 @@ import LandingPage from "@/pages/public/LandingPage";
 import RegisterPage from "@/pages/public/RegisterPage";
 
 // Admin Hiring Pages
-import CreateAppointmentPage from "@/features/admin/hiring/pages/CreateAppointmentPage";
-import AppointmentListPage from "@/features/admin/hiring/pages/AppointmentListPage";
-import EmploymentFormReviewPage from "@/features/admin/hiring/pages/EmploymentFormReviewPage";
-import ContractManagementPage from "@/features/admin/hiring/pages/ContractManagement";
+import HiringManagementPage from "@/features/admin/hiring/pages/HiringManagementPage";
 // Employment Flow Pages (Public - Token-based access)
 import AppointmentLetterView from "@/features/employe/employment/pages/AppointmentLetterView";
 import EmploymentFormPage from "@/features/employe/employment/pages/EmploymentFormPage";
@@ -66,14 +63,8 @@ const adminRoutes = [
   { path: "/admin/salary/all", element: <AllSalariesPage /> },
   { path: "/admin/salary/create", element: <CreateSalaryPage /> },
   { path: "/admin/salary/bulk-generate", element: <BulkGeneratePage /> },
-  // Hiring Management Routes
-  { path: "/admin/hiring/appointments", element: <AppointmentListPage /> },
-  {
-    path: "/admin/hiring/appointments/create",
-    element: <CreateAppointmentPage />,
-  },
-  { path: "/admin/hiring/forms", element: <EmploymentFormReviewPage /> },
-  { path: "/admin/hiring/contracts", element: <ContractManagementPage /> },
+  // Unified Hiring Management Route
+  { path: "/admin/hiring", element: <HiringManagementPage /> },
 ];
 
 const employeeRoutes = [

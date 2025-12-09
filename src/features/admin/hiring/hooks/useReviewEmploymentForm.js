@@ -17,6 +17,7 @@ const useReviewEmploymentForm = () => {
   });
   const [selectedFormId, setSelectedFormId] = useState(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [reviewAction, setReviewAction] = useState(null); // "approve" or "reject"
 
   // Fetch employment forms list
@@ -45,13 +46,16 @@ const useReviewEmploymentForm = () => {
     skip: !selectedFormId,
   });
 
+  console.log("SelectedForm", selectedForm);
+
   // Review mutation
   const [reviewForm, { isLoading: isSubmitting }] =
     useReviewEmploymentFormMutation();
 
   // Extract data with fallbacks
-  const forms = formsData?.data || [];
-  const pagination = formsData?.pagination || {
+  const forms = formsData?.data?.forms || [];
+
+  const pagination = formsData?.data?.pagination || {
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
@@ -75,16 +79,21 @@ const useReviewEmploymentForm = () => {
   ];
 
   // View form details
-  const viewForm = (id) => {
-    setSelectedFormId(id);
+  const viewForm = (formId) => {
+    setSelectedFormId(formId);
+    setDetailsModalOpen(true);
   };
 
   // Close details view
   const closeDetails = () => {
     setSelectedFormId(null);
     setReviewModalOpen(false);
+    setDetailsModalOpen(false);
     setReviewAction(null);
   };
+
+  // Extract selected form data correctly
+  const selectedFormData = selectedForm?.data || null;
 
   // Open review modal
   const openReviewModal = (action) => {
@@ -147,6 +156,7 @@ const useReviewEmploymentForm = () => {
     forms,
     pagination,
     selectedForm,
+    selectedFormData,
 
     // Loading states
     isLoading,
@@ -164,6 +174,10 @@ const useReviewEmploymentForm = () => {
     viewForm,
     closeDetails,
     refetch,
+
+    // Details modal
+    detailsModalOpen,
+    setDetailsModalOpen,
 
     // Review modal
     reviewModalOpen,

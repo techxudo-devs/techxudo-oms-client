@@ -1,9 +1,10 @@
-import { Upload, X, CreditCard } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const CnicInfoStep = ({ formik, handleImageUpload, uploadingImages }) => {
-  const { values, errors, touched, handleChange, handleBlur, setFieldValue } = formik;
+  const { values, errors, touched, handleChange, handleBlur, setFieldValue } =
+    formik;
 
   const ImageUploadBox = ({ field, label, uploadType }) => (
     <div>
@@ -17,11 +18,19 @@ const CnicInfoStep = ({ formik, handleImageUpload, uploadingImages }) => {
             type="file"
             id={field}
             accept="image/*"
-            onChange={(e) => handleImageUpload(e.target.files[0], field)}
+            onClick={(e) => (e.target.value = null)}
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                handleImageUpload(e.target.files[0], field);
+              }
+            }}
             disabled={uploadingImages[uploadType]}
             className="hidden"
           />
-          <label htmlFor={field} className="cursor-pointer flex flex-col items-center gap-2">
+          <label
+            htmlFor={field}
+            className="cursor-pointer flex flex-col items-center gap-2"
+          >
             {uploadingImages[uploadType] ? (
               <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
             ) : (
@@ -34,7 +43,11 @@ const CnicInfoStep = ({ formik, handleImageUpload, uploadingImages }) => {
         </div>
       ) : (
         <div className="relative">
-          <img src={values[field]} alt={label} className="w-full h-40 object-cover rounded-xl border-2" />
+          <img
+            src={values[field]}
+            alt={label}
+            className="w-full h-40 object-cover rounded-xl border-2"
+          />
           <button
             type="button"
             onClick={() => setFieldValue(field, null)}
@@ -63,7 +76,9 @@ const CnicInfoStep = ({ formik, handleImageUpload, uploadingImages }) => {
           value={values.cnicNumber}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`mt-2 ${errors.cnicNumber && touched.cnicNumber ? "border-red-500" : ""}`}
+          className={`mt-2 ${
+            errors.cnicNumber && touched.cnicNumber ? "border-red-500" : ""
+          }`}
           placeholder="12345-1234567-1"
         />
         {errors.cnicNumber && touched.cnicNumber && (
@@ -73,8 +88,16 @@ const CnicInfoStep = ({ formik, handleImageUpload, uploadingImages }) => {
 
       {/* CNIC Images */}
       <div className="grid md:grid-cols-2 gap-4">
-        <ImageUploadBox field="cnicFrontImage" label="CNIC Front" uploadType="cnicFront" />
-        <ImageUploadBox field="cnicBackImage" label="CNIC Back" uploadType="cnicBack" />
+        <ImageUploadBox
+          field="cnicFrontImage"
+          label="CNIC Front"
+          uploadType="cnicFront"
+        />
+        <ImageUploadBox
+          field="cnicBackImage"
+          label="CNIC Back"
+          uploadType="cnicBack"
+        />
       </div>
 
       {/* CNIC Issue Date */}

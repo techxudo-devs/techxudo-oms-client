@@ -240,13 +240,21 @@ const ContractManagementPage = () => {
                       className="text-sm 
   text-gray-900"
                     >
-                      {contract.position}
+                      {contract.contractDetails?.position || "N/A"}
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
-                      {format(new Date(contract.startDate), "MMM dd, yyyy")}
+                      {contract.contractDetails?.startDate
+                        ? format(
+                            new Date(contract.contractDetails.startDate),
+                            "MMM dd, yyyy"
+                          )
+                        : "N/A"}
                     </TableCell>
+
                     <TableCell className="text-sm text-gray-600">
-                      {format(new Date(contract.createdAt), "MMM dd, yyyy")}
+                      {contract.createdAt
+                        ? format(new Date(contract.createdAt), "MMM dd, yyyy")
+                        : "-"}
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={contract.status} />

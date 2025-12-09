@@ -22,6 +22,8 @@ const EmploymentFormPage = () => {
     formik,
     policies,
     isLoading,
+    isError,
+    error,
     isSubmitting,
     uploadingImages,
     submitSuccess,
@@ -58,6 +60,39 @@ const EmploymentFormPage = () => {
     );
   }
 
+  // Error state - form not found or failed to load
+  if (isError) {
+    const errorMessage =
+      error?.data?.error ||
+      error?.error ||
+      "The employment form could not be loaded.";
+    const isExpired = error?.status === 410;
+    const isNotFound = error?.status === 404;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">{isExpired ? "⏰" : "⚠️"}</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {isExpired
+              ? "Link Expired"
+              : isNotFound
+              ? "Form Not Found"
+              : "Error Loading Form"}
+          </h2>
+          <p className="text-gray-600 mb-4">{errorMessage}</p>
+          {(isExpired || isNotFound) && (
+            <p className="text-sm text-gray-500">
+              Please contact HR for assistance.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Success state
   if (submitSuccess) {
     return (
@@ -68,8 +103,8 @@ const EmploymentFormPage = () => {
             Form Submitted Successfully!
           </h2>
           <p className="text-gray-600">
-            Your employment form has been submitted for review. You'll receive an
-            email with next steps shortly.
+            Your employment form has been submitted for review. You'll receive
+            an email with next steps shortly.
           </p>
         </div>
       </div>
@@ -85,7 +120,8 @@ const EmploymentFormPage = () => {
             Employment Form
           </h1>
           <p className="text-sm text-gray-600 mb-4">
-            Step {currentStep + 1} of {steps.length} - {steps[currentStep]?.label}
+            Step {currentStep + 1} of {steps.length} -{" "}
+            {steps[currentStep]?.label}
           </p>
 
           {/* Progress Bar */}
