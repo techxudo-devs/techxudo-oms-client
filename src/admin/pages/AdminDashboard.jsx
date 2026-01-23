@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Users, ClipboardList, Calendar, FileText } from "lucide-react";
 import { useAuth } from "../../shared/hooks/useAuth";
-import { Link } from "react-router-dom";
-import SetupWizardModal from "@/admin/components/SetupWizardModal.jsx";
+import { Link, useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { user, setupCompleted } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect to full-screen setup when not completed
+  useEffect(() => {
+    if (setupCompleted === false) {
+      navigate("/setup", { replace: true });
+    }
+  }, [setupCompleted, navigate]);
 
   const stats = [
     { name: "Total Employees", value: "0", icon: Users, color: "bg-blue-500" },
@@ -32,8 +39,7 @@ const AdminDashboard = () => {
 
   return (
     <>
-      {/* Show Setup Wizard Modal if setup not completed */}
-      {setupCompleted === false && <SetupWizardModal />}
+      {/* Setup wizard is full-screen at /setup; no modal here */}
 
       <div className="space-y-6">
         {/* Header */}

@@ -1,13 +1,4 @@
-import {
-  CheckCircle2,
-  Building2,
-  Palette,
-  Building,
-  Clock,
-  FileSignature,
-  FileText,
-  Edit,
-} from "lucide-react";
+import { CheckCircle2, Building2, Palette, Building, Clock, FileText, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -112,33 +103,23 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
     },
     {
       id: 4,
-      icon: FileSignature,
-      title: "Signature Authority",
-      items: [
-        {
-          label: "Type",
-          value:
-            formData.signatureAuthority.authorityType === "single"
-              ? "Single Signature"
-              : "Multiple Signatures",
-        },
-        {
-          label: "Required Signatures",
-          value: formData.signatureAuthority.requiredSignatures,
-        },
-      ],
+      icon: FileText,
+      title: "Documents",
+      items:
+        (formData.documents && formData.documents.length > 0)
+          ? formData.documents.map((d) => ({ label: d.name, value: d.type?.includes("template") ? "Template" : "Upload" }))
+          : [{ label: "No documents", value: "You can add later" }],
     },
     {
       id: 5,
       icon: FileText,
-      title: "Policies",
-      items:
-        formData.policies.length > 0
-          ? formData.policies.map((policy) => ({
-              label: policy.title,
-              value: policy.isRequired ? "Required" : "Optional",
-            }))
-          : [{ label: "No policies", value: "Add policies later" }],
+      title: "Email",
+      items: [
+        { label: "From Name", value: formData.emailSettings?.fromName || "" },
+        { label: "From Email", value: formData.emailSettings?.fromEmail || "" },
+        { label: "Header Color", value: formData.emailSettings?.headerColor || "#000000" },
+        { label: "Template", value: (formData.emailSettings?.templateStyle || "modern").toUpperCase() },
+      ],
     },
   ];
 

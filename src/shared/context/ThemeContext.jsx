@@ -58,18 +58,48 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [organizationData]);
 
-  // Apply theme to CSS custom properties
+  // Compute readable foreground (black/white) for a hex color
+  const contrastText = (hex) => {
+    try {
+      const c = hex.replace("#", "");
+      const r = parseInt(c.substring(0, 2), 16) / 255;
+      const g = parseInt(c.substring(2, 4), 16) / 255;
+      const b = parseInt(c.substring(4, 6), 16) / 255;
+      const srgb = [r, g, b].map((v) =>
+        v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+      );
+      const lum = 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+      return lum > 0.5 ? "#000000" : "#ffffff";
+    } catch {
+      return "#ffffff";
+    }
+  };
+
+  // Apply theme to CSS custom properties (Tailwind tokens)
   const applyThemeToDOM = (themeColors) => {
     const root = document.documentElement;
 
-    // Primary color (for buttons, links, important elements)
+    // Back-compat custom variables (legacy)
     root.style.setProperty("--color-primary", themeColors.primaryColor);
-
-    // Secondary color (for subtle elements)
     root.style.setProperty("--color-secondary", themeColors.secondaryColor);
-
-    // Accent color (for highlights, notifications)
     root.style.setProperty("--color-accent", themeColors.accentColor);
+
+    // Tailwind CSS token variables used across UI
+    root.style.setProperty("--primary", themeColors.primaryColor);
+    root.style.setProperty(
+      "--primary-foreground",
+      contrastText(themeColors.primaryColor)
+    );
+    root.style.setProperty("--secondary", themeColors.secondaryColor);
+    root.style.setProperty(
+      "--secondary-foreground",
+      contrastText(themeColors.secondaryColor)
+    );
+    root.style.setProperty("--accent", themeColors.accentColor);
+    root.style.setProperty(
+      "--accent-foreground",
+      contrastText(themeColors.accentColor)
+    );
 
     // Dark mode toggle
     if (themeColors.darkMode) {

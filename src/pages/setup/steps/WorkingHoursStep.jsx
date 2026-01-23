@@ -2,10 +2,6 @@ import { Clock } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-/**
- * Step 4: Working Hours
- * Configure company schedule and timezone
- */
 const WorkingHoursStep = ({ formData, updateNestedField, errors }) => {
   const weekDays = [
     { value: "monday", label: "Monday" },
@@ -48,12 +44,9 @@ const WorkingHoursStep = ({ formData, updateNestedField, errors }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="container mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="inline-flex p-3 rounded-xl bg-gray-100 mb-4">
-          <Clock className="w-6 h-6 text-gray-900" />
-        </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Set your working hours
         </h2>
@@ -161,7 +154,7 @@ const WorkingHoursStep = ({ formData, updateNestedField, errors }) => {
                   parseInt(start[0]) * 60 + parseInt(start[1]);
                 const endMinutes = parseInt(end[0]) * 60 + parseInt(end[1]);
                 const totalHours = ((endMinutes - startMinutes) / 60).toFixed(
-                  1
+                  1,
                 );
                 return totalHours > 0 ? ` (${totalHours} hours)` : "";
               })()}
@@ -178,7 +171,7 @@ const WorkingHoursStep = ({ formData, updateNestedField, errors }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {weekDays.map((day) => {
               const isSelected = formData.workingHours.workingDays.includes(
-                day.value
+                day.value,
               );
 
               return (

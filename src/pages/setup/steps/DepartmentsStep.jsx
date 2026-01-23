@@ -30,7 +30,7 @@ const DepartmentsStep = ({ formData, updateField, errors }) => {
     const isDuplicate = formData.departments.some(
       (dept, index) =>
         dept.name.toLowerCase() === currentDept.name.toLowerCase() &&
-        index !== editingIndex
+        index !== editingIndex,
     );
 
     if (isDuplicate) {
@@ -62,7 +62,7 @@ const DepartmentsStep = ({ formData, updateField, errors }) => {
   // Delete department
   const handleDeleteDepartment = (index) => {
     const updatedDepartments = formData.departments.filter(
-      (_, i) => i !== index
+      (_, i) => i !== index,
     );
     updateField("departments", updatedDepartments);
   };
@@ -86,9 +86,6 @@ const DepartmentsStep = ({ formData, updateField, errors }) => {
     <div className=" mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="inline-flex p-3 rounded-xl bg-gray-100 mb-4">
-          <Building className="w-6 h-6 text-gray-900" />
-        </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Organize your departments
         </h2>

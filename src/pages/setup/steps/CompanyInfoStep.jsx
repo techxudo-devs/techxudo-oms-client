@@ -70,9 +70,6 @@ const CompanyInfoStep = ({
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <div className="inline-flex p-3 rounded-xl bg-gray-100 mb-4">
-          <Building2 className="w-6 h-6 text-gray-900" />
-        </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Tell us about your company
         </h2>

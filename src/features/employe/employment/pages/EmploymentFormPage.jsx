@@ -189,7 +189,7 @@ const EmploymentFormPage = () => {
               variant="outline"
               className="px-6 py-3"
             >
-              Previous
+            Previous
             </Button>
 
             {isLastStep ? (

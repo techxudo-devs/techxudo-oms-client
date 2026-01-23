@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
+import { extractApiError } from "@/shared/utils/error";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/shared/store/features/authSlice";
 
-/**
- * Custom hook for organization registration
- * Separates business logic from UI
- */
 export const useRegistration = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     companyName: "",
@@ -36,6 +36,8 @@ export const useRegistration = () => {
       newErrors.companyName = "Company name is required";
     } else if (formData.companyName.length < 2) {
       newErrors.companyName = "Company name must be at least 2 characters";
+    } else if (!/^[a-zA-Z0-9\s&.-]+$/.test(formData.companyName)) {
+      newErrors.companyName = "Only letters, numbers, spaces, & . - allowed";
     }
 
     if (!formData.fullName.trim()) {
@@ -87,33 +89,54 @@ export const useRegistration = () => {
           ownerEmail: formData.email,
           ownerPassword: formData.password,
           planSlug: "free",
-        }
+        },
       );
 
-      // Check if response has token
-      if (response.data.data?.owner?.token) {
-        localStorage.setItem("token", response.data.data.owner.token);
+      // Persist auth in Redux (and localStorage via slice)
+      const owner = response?.data?.data?.owner;
+      if (owner?.token) {
+        dispatch(
+          setCredentials({
+            token: owner.token,
+            id: owner.id,
+            email: owner.email,
+            fullName: owner.fullName,
+          })
+        );
       }
 
       toast.success("Welcome! Let's set up your workspace");
 
-      // Navigate to setup
-      setTimeout(() => {
-        navigate("/setup");
-      }, 500);
+      // Redirect to dashboard; Setup wizard modal will guide completion
+      navigate("/admin/dashboard", { replace: true });
 
       return true;
     } catch (error) {
       console.error("Registration error:", error);
 
-      const errorMessage =
-        error.response?.data?.message ||
-        "Registration failed. Please try again.";
+      const { message, fieldErrors } = extractApiError(error);
 
-      // Set general error for display
-      setErrors({ general: errorMessage });
+      // Merge field errors into current errors
+      setErrors((prev) => ({
+        ...prev,
+        ...fieldErrors,
+        general: message,
+      }));
 
-      toast.error(errorMessage);
+      // Prefer showing first field error if available
+      const firstFieldMsg = Object.values(fieldErrors)[0];
+      toast.error(firstFieldMsg || message);
+
+      // Focus first errored field if present
+      if (fieldErrors.companyName) {
+        document.getElementById("companyName")?.focus();
+      } else if (fieldErrors.fullName) {
+        document.getElementById("fullName")?.focus();
+      } else if (fieldErrors.email) {
+        document.getElementById("email")?.focus();
+      } else if (fieldErrors.password) {
+        document.getElementById("password")?.focus();
+      }
 
       return false;
     } finally {

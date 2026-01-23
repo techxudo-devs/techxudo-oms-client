@@ -1,31 +1,9 @@
 import { Check } from "lucide-react";
 
-/**
- * Modern Progress Bar for Setup Wizard
- * Shows current step, completed steps, and allows navigation
- */
 const ProgressBar = ({ steps, currentStep, onStepClick }) => {
   return (
     <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10">
       <div className="container mx-auto px-6 py-6">
-        {/* Progress percentage bar */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Step {currentStep + 1} of {steps.length}
-            </span>
-            <span className="text-sm text-gray-500">
-              {Math.round(((currentStep + 1) / steps.length) * 100)}% complete
-            </span>
-          </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gray-900 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-            />
-          </div>
-        </div>
-
         {/* Step indicators */}
         <div className="hidden md:flex items-center justify-between relative">
           {/* Connecting line */}
@@ -56,11 +34,12 @@ const ProgressBar = ({ steps, currentStep, onStepClick }) => {
                   className={`
                     w-10 h-10 rounded-full flex items-center justify-center
                     border-2 transition-all duration-200
-                    ${isCompleted
-                      ? "bg-gray-900 border-gray-900"
-                      : isCurrent
-                      ? "bg-white border-gray-900 ring-4 ring-gray-900/10"
-                      : "bg-white border-gray-300"
+                    ${
+                      isCompleted
+                        ? "bg-gray-900 border-gray-900"
+                        : isCurrent
+                          ? "bg-white border-gray-900 ring-4 ring-gray-900/10"
+                          : "bg-white border-gray-300"
                     }
                     ${isClickable && !isCurrent ? "group-hover:border-gray-500" : ""}
                   `}

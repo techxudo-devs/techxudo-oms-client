@@ -38,6 +38,7 @@ import AttendanceHistoryPage from "@/employee/pages/attendance/AttendanceHistory
 import SalaryHistoryPage from "@/employee/pages/salary/SalaryHistoryPage";
 import LandingPage from "@/pages/public/LandingPage";
 import RegisterPage from "@/pages/public/RegisterPage";
+import SetupWizard from "@/pages/setup/SetupWizard";
 
 // Admin Hiring Pages
 import HiringManagementPage from "@/features/admin/hiring/pages/HiringManagementPage";
@@ -149,6 +150,8 @@ const AppRoutes = () => {
 
       {/* Admin Routes - Setup wizard shown as modal if incomplete */}
       <Route element={<PrivateRoute allowAdmin />}>
+        {/* Setup wizard full-screen route */}
+        <Route path="/setup" element={<SetupWizard />} />
         <Route element={<Layout />}>{renderRoutes(adminRoutes)}</Route>
       </Route>
 

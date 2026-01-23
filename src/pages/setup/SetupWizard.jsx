@@ -1,13 +1,14 @@
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Info, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import useSetupWizard from "@/hooks/useSetupWizard";
 import ProgressBar from "@/components/setup/ProgressBar";
 import CompanyInfoStep from "./steps/CompanyInfoStep";
 import BrandingStep from "./steps/BrandingStep";
 import DepartmentsStep from "./steps/DepartmentsStep";
 import WorkingHoursStep from "./steps/WorkingHoursStep";
-import SignatureStep from "./steps/SignatureStep";
-import PoliciesStep from "./steps/PoliciesStep";
+import DocumentsStep from "./steps/DocumentsStep";
+import EmailStep from "./steps/EmailStep";
 import ReviewStep from "./steps/ReviewStep";
 
 /**
@@ -30,6 +31,7 @@ const SetupWizard = () => {
     prevStep,
     goToStep,
     completeSetup,
+    saveDraft,
   } = useSetupWizard();
 
   // Render current step component
@@ -51,9 +53,9 @@ const SetupWizard = () => {
       case 3:
         return <WorkingHoursStep {...commonProps} />;
       case 4:
-        return <SignatureStep {...commonProps} />;
+        return <DocumentsStep {...commonProps} />;
       case 5:
-        return <PoliciesStep {...commonProps} />;
+        return <EmailStep {...commonProps} />;
       case 6:
         return (
           <ReviewStep
@@ -82,6 +84,31 @@ const SetupWizard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header Bar with Save Draft */}
+      <div className="border-b bg-white">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Info className="w-4 h-4 text-primary" />
+            </div>
+            <div className="text-sm text-gray-600">
+              Your progress is saved automatically. You can resume anytime.
+            </div>
+          </div>
+          <Button
+            variant="secondary"
+            className="h-9"
+            onClick={() => {
+              saveDraft();
+              toast.success("Draft saved");
+            }}
+            title="Manually save a draft of your current progress"
+          >
+            <Save className="w-4 h-4 mr-2" /> Save Draft
+          </Button>
+        </div>
+      </div>
+
       {/* Progress Bar */}
       <ProgressBar
         steps={steps}
@@ -91,7 +118,7 @@ const SetupWizard = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-12">
-        {/* Step Content with Fade Animation */}
+        {/* Step Content with Fade Animation and helper copy */}
         <div className="animate-in fade-in duration-500" key={currentStep}>
           {renderStep()}
         </div>
