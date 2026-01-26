@@ -66,7 +66,7 @@ const adminRoutes = [
   { path: "/admin/salary/create", element: <CreateSalaryPage /> },
   { path: "/admin/salary/bulk-generate", element: <BulkGeneratePage /> },
   { path: "/admin/company-profile", element: <CompanyProfilePage /> },
-  // Unified Hiring Management Route
+  // Unified Hiring Management Route (frontend demo)
   { path: "/admin/hiring", element: <HiringBoardPage /> },
 ];
 

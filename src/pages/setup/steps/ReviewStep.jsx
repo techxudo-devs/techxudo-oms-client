@@ -7,6 +7,16 @@ import { Button } from "@/components/ui/button";
  */
 const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
   console.log("This the the form DAta", formData);
+  const safe = (v, fallback) => (v === null || v === undefined ? fallback : v);
+  const contactInfo = safe(formData?.contactInfo, {});
+  const address = safe(formData?.address, {});
+  const theme = safe(formData?.theme, {});
+  const workingHours = safe(formData?.workingHours, {});
+  const emailSettings = safe(formData?.emailSettings, {});
+  const departments = Array.isArray(formData?.departments) ? formData.departments : [];
+  const documents = Array.isArray(formData?.documents) ? formData.documents : [];
+  const workingDays = Array.isArray(workingHours?.workingDays) ? workingHours.workingDays : [];
+  const policies = Array.isArray(formData?.policies) ? formData.policies : [];
   const weekDays = {
     monday: "Monday",
     tuesday: "Tuesday",
@@ -23,22 +33,22 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
       icon: Building2,
       title: "Company Information",
       items: [
-        { label: "Company Name", value: formData.companyName },
-        { label: "Company Slug", value: formData.slug },
-        { label: "Email", value: formData.contactInfo.email },
-        { label: "Phone", value: formData.contactInfo.phone || "Not provided" },
+        { label: "Company Name", value: formData?.companyName || "" },
+        { label: "Company Slug", value: formData?.slug || "" },
+        { label: "Email", value: contactInfo.email || "" },
+        { label: "Phone", value: contactInfo.phone || "Not provided" },
         {
           label: "Website",
-          value: formData.contactInfo.website || "Not provided",
+          value: contactInfo.website || "Not provided",
         },
         {
           label: "Address",
           value: [
-            formData.address.street,
-            formData.address.city,
-            formData.address.state,
-            formData.address.postalCode,
-            formData.address.country,
+            address.street,
+            address.city,
+            address.state,
+            address.postalCode,
+            address.country,
           ]
             .filter(Boolean)
             .join(", "),
@@ -52,22 +62,22 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
       items: [
         {
           label: "Primary Color",
-          value: formData.theme.primaryColor,
+          value: theme.primaryColor || "#000000",
           isColor: true,
         },
         {
           label: "Secondary Color",
-          value: formData.theme.secondaryColor,
+          value: theme.secondaryColor || "#000000",
           isColor: true,
         },
         {
           label: "Accent Color",
-          value: formData.theme.accentColor,
+          value: theme.accentColor || "#000000",
           isColor: true,
         },
         {
           label: "Dark Mode",
-          value: formData.theme.darkMode ? "Enabled" : "Disabled",
+          value: theme.darkMode ? "Enabled" : "Disabled",
         },
       ],
     },
@@ -76,8 +86,8 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
       icon: Building,
       title: "Departments",
       items:
-        formData.departments.length > 0
-          ? formData.departments.map((dept) => ({
+        departments.length > 0
+          ? departments.map((dept) => ({
               label: dept.name,
               value: dept.description || "No description",
             }))
@@ -88,14 +98,14 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
       icon: Clock,
       title: "Working Hours",
       items: [
-        { label: "Timezone", value: formData.workingHours.timezone },
+        { label: "Timezone", value: workingHours.timezone || "" },
         {
           label: "Working Hours",
-          value: `${formData.workingHours.startTime} - ${formData.workingHours.endTime}`,
+          value: `${safe(workingHours.startTime, "--:--")} - ${safe(workingHours.endTime, "--:--")}`,
         },
         {
           label: "Working Days",
-          value: formData.workingHours.workingDays
+          value: workingDays
             .map((day) => weekDays[day])
             .join(", "),
         },
@@ -106,8 +116,8 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
       icon: FileText,
       title: "Documents",
       items:
-        (formData.documents && formData.documents.length > 0)
-          ? formData.documents.map((d) => ({ label: d.name, value: d.type?.includes("template") ? "Template" : "Upload" }))
+        (documents && documents.length > 0)
+          ? documents.map((d) => ({ label: d.name, value: d.type?.includes("template") ? "Template" : "Upload" }))
           : [{ label: "No documents", value: "You can add later" }],
     },
     {
@@ -115,10 +125,10 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
       icon: FileText,
       title: "Email",
       items: [
-        { label: "From Name", value: formData.emailSettings?.fromName || "" },
-        { label: "From Email", value: formData.emailSettings?.fromEmail || "" },
-        { label: "Header Color", value: formData.emailSettings?.headerColor || "#000000" },
-        { label: "Template", value: (formData.emailSettings?.templateStyle || "modern").toUpperCase() },
+        { label: "From Name", value: emailSettings?.fromName || "" },
+        { label: "From Email", value: emailSettings?.fromEmail || "" },
+        { label: "Header Color", value: emailSettings?.headerColor || "#000000" },
+        { label: "Template", value: (emailSettings?.templateStyle || "modern").toUpperCase() },
       ],
     },
   ];
@@ -235,21 +245,21 @@ const ReviewStep = ({ formData, goToStep, isSaving, errors }) => {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 text-center">
           <div className="text-2xl font-bold text-blue-900 mb-1">
-            {formData.departments.length}
+            {departments.length}
           </div>
           <div className="text-xs text-blue-700">Departments</div>
         </div>
 
         <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-center">
           <div className="text-2xl font-bold text-green-900 mb-1">
-            {formData.workingHours.workingDays.length}
+            {workingDays.length}
           </div>
           <div className="text-xs text-green-700">Working Days</div>
         </div>
 
         <div className="p-4 rounded-lg bg-purple-50 border border-purple-200 text-center">
           <div className="text-2xl font-bold text-purple-900 mb-1">
-            {formData.policies.length}
+            {policies.length}
           </div>
           <div className="text-xs text-purple-700">Policies</div>
         </div>

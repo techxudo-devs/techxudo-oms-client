@@ -30,14 +30,39 @@ export default function HiringBoardPage() {
     jobTitle: "",
     department: "",
   });
+  const [offerDialog, setOfferDialog] = useState({
+    open: false,
+    app: null,
+    salary: "",
+    phone: "",
+    joiningDate: "",
+  });
   const { data: orgData } = useGetCurrentOrganizationQuery();
   const departments = orgData?.data?.departments || [];
   const [localAdds, setLocalAdds] = useState([]);
 
   const appsByStage = useMemo(() => {
-    const items = [...(data?.data || data || []), ...localAdds];
+    const src = Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data)
+        ? data
+        : [];
+    // Merge server items with local overrides by id, preferring local
+    const byId = new Map();
+    for (const it of src) {
+      const key = it.id || it._id;
+      if (!key) continue;
+      byId.set(key, it);
+    }
+    for (const it of localAdds) {
+      const key = it.id || it._id;
+      if (!key) continue;
+      const base = byId.get(key) || {};
+      byId.set(key, { ...base, ...it });
+    }
+    const merged = Array.from(byId.values());
     const map = Object.fromEntries(STAGES.map((s) => [s, []]));
-    for (const a of items) {
+    for (const a of merged) {
       const s = (a.stage || "applied").toLowerCase();
       if (!map[s]) map[s] = [];
       map[s].push(a);
@@ -47,13 +72,39 @@ export default function HiringBoardPage() {
 
   const openDrawer = (app) => {
     // Do not open email drawer for 'applied' stage
-    if ((app.stage || '').toLowerCase() === 'applied') return;
+    if ((app.stage || "").toLowerCase() === "applied") return;
     setSelected(app);
     setDrawerOpen(true);
   };
 
   const onMove = async (app, toStage) => {
+    const key = app.id || app._id;
+    // Optimistic local update (frontend demo)
+    setLocalAdds((prev) => {
+      let updated = false;
+      const next = prev.map((x) => {
+        const k = x.id || x._id;
+        if (k === key) {
+          updated = true;
+          return { ...x, stage: toStage };
+        }
+        return x;
+      });
+      if (!updated) next.push({ ...app, stage: toStage });
+      return next;
+    });
+
     try {
+      if (toStage === "offer") {
+        setOfferDialog({
+          open: true,
+          app: { ...app, stage: toStage },
+          salary: "",
+          phone: app.candidate?.phone || "",
+          joiningDate: "",
+        });
+        return;
+      }
       await moveStage({
         id: app.id || app._id,
         stage: toStage,
@@ -61,16 +112,89 @@ export default function HiringBoardPage() {
         candidateName: app.candidate?.name,
         jobTitle: app.jobTitle,
       }).unwrap();
-      setLocalAdds((prev) =>
-        prev.map((x) =>
-          (x._id === (app._id || app.id) || x.id === (app.id || app._id))
-            ? { ...x, stage: toStage }
-            : x
-        )
+      toast.success(
+        toStage === "screen"
+          ? "Moved to screening and email sent"
+          : `Moved to ${toStage}`,
       );
-      toast.success(toStage === "screen" ? "Moved to screening and email sent" : `Moved to ${toStage}`);
     } catch (e) {
-      toast.error(e?.data?.message || "Failed to move");
+      // Keep local movement for demo
+      toast.info("Moved locally (demo mode)");
+    }
+  };
+
+  const submitOffer = async () => {
+    try {
+      const { app, salary, phone, joiningDate } = offerDialog;
+      const salaryNum = parseFloat(
+        String(salary || "").replace(/[^0-9.]/g, ""),
+      );
+      const phoneStr = String(phone || "").trim();
+      if (!salaryNum || Number.isNaN(salaryNum) || salaryNum <= 0) {
+        toast.error("Please enter a valid salary");
+        return;
+      }
+      if (!phoneStr) {
+        toast.error("Phone number is required");
+        return;
+      }
+      await moveStage({
+        id: app.id || app._id,
+        stage: "offer",
+        salary: salaryNum,
+        phone: phoneStr,
+        joiningDate: joiningDate || undefined,
+        jobTitle: app.jobTitle,
+      }).unwrap();
+      const key = app.id || app._id;
+      setLocalAdds((prev) => {
+        let updated = false;
+        const next = prev.map((x) => {
+          const k = x.id || x._id;
+          if (k === key) {
+            updated = true;
+            return { ...x, stage: "offer" };
+          }
+          return x;
+        });
+        if (!updated) {
+          next.push({ ...app, stage: "offer" });
+        }
+        return next;
+      });
+      toast.success("Offer initiated and email sent");
+      setOfferDialog({
+        open: false,
+        app: null,
+        salary: "",
+        phone: "",
+        joiningDate: "",
+      });
+    } catch (e) {
+      // Demo fallback: move locally even if API fails
+      const { app } = offerDialog;
+      const key = app.id || app._id;
+      setLocalAdds((prev) => {
+        let updated = false;
+        const next = prev.map((x) => {
+          const k = x.id || x._id;
+          if (k === key) {
+            updated = true;
+            return { ...x, stage: "offer" };
+          }
+          return x;
+        });
+        if (!updated) next.push({ ...app, stage: "offer" });
+        return next;
+      });
+      setOfferDialog({
+        open: false,
+        app: null,
+        salary: "",
+        phone: "",
+        joiningDate: "",
+      });
+      toast.info("Offer initiated locally (demo mode)");
     }
   };
 
@@ -82,10 +206,33 @@ export default function HiringBoardPage() {
     try {
       const resp = await createCandidate(newCandidate).unwrap();
       if (resp?.data) setLocalAdds((prev) => [resp.data, ...prev]);
-      toast.success("Candidate added and notified");
+      else
+        setLocalAdds((prev) => [
+          {
+            _id: Date.now().toString(),
+            stage: "applied",
+            jobTitle: newCandidate.jobTitle,
+            department: newCandidate.department,
+            candidate: { name: newCandidate.name, email: newCandidate.email },
+          },
+          ...prev,
+        ]);
+      toast.success("Candidate added (demo)");
       setNewCandidate({ name: "", email: "", jobTitle: "", department: "" });
     } catch (e) {
-      toast.error(e?.data?.message || "Failed to add candidate");
+      // Fallback: add locally in demo mode
+      setLocalAdds((prev) => [
+        {
+          _id: Date.now().toString(),
+          stage: "applied",
+          jobTitle: newCandidate.jobTitle,
+          department: newCandidate.department,
+          candidate: { name: newCandidate.name, email: newCandidate.email },
+        },
+        ...prev,
+      ]);
+      setNewCandidate({ name: "", email: "", jobTitle: "", department: "" });
+      toast.info("Candidate added locally (demo)");
     }
   };
 
@@ -208,6 +355,76 @@ export default function HiringBoardPage() {
         onClose={() => setDrawerOpen(false)}
         app={selected}
       />
+
+      {/* Offer Details Dialog */}
+      {offerDialog.open && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/30"
+            onClick={() =>
+              setOfferDialog({
+                open: false,
+                app: null,
+                salary: "",
+                phone: "",
+                joiningDate: "",
+              })
+            }
+          />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl shadow-xl border p-4">
+            <div className="text-sm font-semibold mb-2">Initiate Offer</div>
+            <div className="space-y-3">
+              <div className="text-xs text-zinc-500">
+                Provide details to send offer letter
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <Input
+                  placeholder="Salary (numeric)"
+                  value={offerDialog.salary}
+                  onChange={(e) =>
+                    setOfferDialog((s) => ({ ...s, salary: e.target.value }))
+                  }
+                />
+                <Input
+                  placeholder="Phone"
+                  value={offerDialog.phone}
+                  onChange={(e) =>
+                    setOfferDialog((s) => ({ ...s, phone: e.target.value }))
+                  }
+                />
+                <Input
+                  type="date"
+                  placeholder="Joining Date (optional)"
+                  value={offerDialog.joiningDate}
+                  onChange={(e) =>
+                    setOfferDialog((s) => ({
+                      ...s,
+                      joiningDate: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    setOfferDialog({
+                      open: false,
+                      app: null,
+                      salary: "",
+                      phone: "",
+                      joiningDate: "",
+                    })
+                  }
+                >
+                  Cancel
+                </Button>
+                <Button onClick={submitOffer}>Send Offer</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

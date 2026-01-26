@@ -10,10 +10,10 @@ export const hiringApiSlice = apiSlice.injectEndpoints({
       providesTags: ["HiringApplications"],
     }),
     moveStage: builder.mutation({
-      query: ({ id, stage }) => ({
+      query: ({ id, ...body }) => ({
         url: `/hiring/applications/${id}/move`,
         method: "POST",
-        body: { stage },
+        body,
       }),
       invalidatesTags: ["HiringApplications"],
     }),
