@@ -113,14 +113,14 @@ const InputField = ({
             ${
               touched && error
                 ? "border-red-500 text-red-600 focus:border-red-500"
-                : "border-gray-200 text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                : "border-gray-200 text-gray-800 focus:border-primary focus:ring-1 focus:ring-primary"
             }`}
         />
         {showToggle && (
           <button
             type="button"
             onClick={onTogglePassword}
-            className="absolute top-3 cursor-pointer right-0 flex items-center pr-4 text-gray-500 hover:text-indigo-600"
+            className="absolute top-3 cursor-pointer right-0 flex items-center pr-4 text-gray-500 hover:text-primary"
           >
             {showPassword ? (
               <EyeOff className="h-5 w-5" />

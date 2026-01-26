@@ -29,13 +29,13 @@ export const LoginForm = ({ formik }) => {
         <label className="flex items-center">
           <input
             type="checkbox"
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
           />
           <span className="ml-2 text-gray-600">Remember me</span>
         </label>
         <Link
           to="/forgot-password"
-          className="font-medium text-indigo-600 hover:text-indigo-500"
+          className="font-medium text-primary hover:opacity-80"
         >
           Forgot password?
         </Link>

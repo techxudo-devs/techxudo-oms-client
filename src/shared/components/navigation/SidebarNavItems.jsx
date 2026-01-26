@@ -53,6 +53,11 @@ export const adminNavItems = [
     icon: <Banknote size={20} />,
     path: "/admin/salary",
   },
+  {
+    text: "Company Profile",
+    icon: <Briefcase size={20} />,
+    path: "/admin/company-profile",
+  },
 ];
 
 /* ------------------------------

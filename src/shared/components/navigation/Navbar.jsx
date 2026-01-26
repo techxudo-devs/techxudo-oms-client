@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  LogOut,
-  Menu,
-  X,
-  Bell,
-  Search,
-  Building2,
-} from "lucide-react";
+import { LogOut, Menu, X, Bell, Search, Building2 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useLogoutMutation } from "../../store/features/userApiSlice";
 import { useDispatch } from "react-redux";
@@ -24,7 +17,7 @@ export function Navbar({ expanded, setExpanded }) {
   const handleLogout = async () => {
     try {
       const refreshToken = JSON.parse(
-        localStorage.getItem("userInfo")
+        localStorage.getItem("userInfo"),
       )?.refreshToken;
       await logoutMutation({ refreshToken }).unwrap();
       dispatch(logout());

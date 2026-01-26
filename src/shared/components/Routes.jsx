@@ -24,6 +24,7 @@ import AdminSalaryDashboard from "@/admin/pages/salary/AdminSalaryDashboard";
 import AllSalariesPage from "@/admin/pages/salary/AllSalariesPage";
 import CreateSalaryPage from "@/admin/pages/salary/CreateSalaryPage";
 import BulkGeneratePage from "@/admin/pages/salary/BulkGeneratePage";
+import CompanyProfilePage from "@/admin/pages/CompanyProfilePage";
 
 // Employee Pages
 import EmployeeDashboard from "../../employee/pages/EmployeeDashboard";
@@ -41,7 +42,7 @@ import RegisterPage from "@/pages/public/RegisterPage";
 import SetupWizard from "@/pages/setup/SetupWizard";
 
 // Admin Hiring Pages
-import HiringManagementPage from "@/features/admin/hiring/pages/HiringManagementPage";
+import HiringBoardPage from "@/features/hiring/pages/HiringBoardPage";
 // Employment Flow Pages (Public - Token-based access)
 import AppointmentLetterView from "@/features/employe/employment/pages/AppointmentLetterView";
 import EmploymentFormPage from "@/features/employe/employment/pages/EmploymentFormPage";
@@ -64,8 +65,9 @@ const adminRoutes = [
   { path: "/admin/salary/all", element: <AllSalariesPage /> },
   { path: "/admin/salary/create", element: <CreateSalaryPage /> },
   { path: "/admin/salary/bulk-generate", element: <BulkGeneratePage /> },
+  { path: "/admin/company-profile", element: <CompanyProfilePage /> },
   // Unified Hiring Management Route
-  { path: "/admin/hiring", element: <HiringManagementPage /> },
+  { path: "/admin/hiring", element: <HiringBoardPage /> },
 ];
 
 const employeeRoutes = [

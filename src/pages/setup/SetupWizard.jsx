@@ -124,36 +124,40 @@ const SetupWizard = () => {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="max-w-6xl mx-auto mt-12">
-          <div className="flex items-center justify-between gap-4">
-            {/* Back Button */}
-            {!isFirstStep && (
+        <div className="container mx-auto mt-12 px-4">
+          <div className="flex items-center justify-between border-t border-black/[0.06] pt-8">
+            {!isFirstStep ? (
               <Button
                 onClick={prevStep}
-                variant="outline"
-                className="h-12 px-6 border-gray-300 hover:bg-gray-100"
+                variant="ghost"
                 disabled={isSaving}
+                className="group h-11 px-4 text-muted-foreground hover:text-foreground transition-all"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+                <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+                <span className="font-medium tracking-tight">Back</span>
               </Button>
+            ) : (
+              <div />
             )}
 
-            {/* Spacer for first step */}
-            {isFirstStep && <div />}
+            {/* Right Actions */}
+            <div className="flex items-center gap-4">
+              {/* Step Indicator - Refined subtle text */}
+              <div className="hidden sm:block text-xs font-medium text-muted-foreground tracking-tight mr-2">
+                Step {currentStep + 1}{" "}
+                <span className="text-black/20 mx-1">/</span> {steps.length}
+              </div>
 
-            {/* Next/Complete Button */}
-            <div className="ml-auto">
               {isLastStep ? (
                 <Button
                   onClick={completeSetup}
-                  className="h-12 px-8 bg-gray-900 hover:bg-gray-800 text-white"
                   disabled={isSaving}
+                  className="h-11 px-8 bg-black hover:bg-zinc-800 text-white shadow-sm transition-all active:scale-[0.98]"
                 >
                   {isSaving ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Completing...
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                      Processing
                     </>
                   ) : (
                     <>
@@ -165,18 +169,20 @@ const SetupWizard = () => {
               ) : (
                 <Button
                   onClick={nextStep}
-                  className="h-12 px-8 bg-gray-900 hover:bg-gray-800 text-white"
+                  className="group h-11 px-8 bg-black hover:bg-zinc-800 text-white shadow-sm transition-all active:scale-[0.98]"
                 >
-                  Continue
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <span className="font-medium tracking-tight">Continue</span>
+                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Button>
               )}
             </div>
           </div>
 
-          {/* Step Indicator for Mobile */}
-          <div className="mt-6 text-center text-sm text-gray-500 md:hidden">
-            Step {currentStep + 1} of {steps.length}
+          {/* Mobile Step Indicator */}
+          <div className="mt-6 text-center sm:hidden">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+              Step {currentStep + 1} of {steps.length}
+            </span>
           </div>
         </div>
 

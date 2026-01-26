@@ -25,8 +25,8 @@ export const useAuthScreen = () => {
 
   // Set default values for development
   const isDevelopment = process.env.NODE_ENV === "development";
-  const defaultEmail = isDevelopment ? "zariyemoash@gmail.com" : "";
-  const defaultPassword = isDevelopment ? "Pakistan123!" : "";
+  const defaultEmail = isDevelopment ? "admin@hotmail.com" : "";
+  const defaultPassword = isDevelopment ? "UgamerZ2677" : "";
 
   const formik = useFormik({
     initialValues: {

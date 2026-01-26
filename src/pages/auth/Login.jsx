@@ -1,112 +1,112 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Mail, Lock, ArrowRight, AlertCircle, Building2 } from "lucide-react";
+import {
+  ArrowRight,
+  AlertCircle,
+  Loader2,
+  Command,
+  ShieldCheck,
+} from "lucide-react";
 import { useAuthScreen } from "../../shared/hooks/useAuthScreen";
 import { LoginForm } from "../../shared/components/auth/LoginForm";
+import { cn } from "@/lib/utils"; // Assuming you have a class merger, or just use standard strings
 
 const Login = () => {
   const { formik, isLoading, error } = useAuthScreen();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-900 to-gray-700 mb-4 shadow-lg">
-            <h1 className="text-white font-bold text-lg">OMS</h1>
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-white overflow-hidden selection:bg-black selection:text-white">
+      <div className="absolute inset-0 z-0 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+
+      <div className="relative z-10 w-full max-w-[450px] px-4">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-black text-white shadow-xl shadow-black/10 ring-4 ring-black/5">
+            <Command className="h-6 w-6" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+            Welcome back
           </h1>
-          <p className="text-gray-600">
-            Sign in to access your organization dashboard
+          <p className="mt-2 text-sm text-gray-500 max-w-[280px]">
+            Enter your credentials to access your organization workspace.
           </p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8">
-          {/* Error Alert */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          )}
+        {/* Main Card */}
+        <div className="group  rounded-2xl border border-gray-200 bg-white/60 backdrop-blur-xl  transition-all hover:shadow-md">
+          <div className="p-6 sm:p-8">
+            {error && (
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-100 bg-red-50/50 p-3 text-sm text-red-600 animate-in slide-in-from-top-2">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <p>{error}</p>
+              </div>
+            )}
 
-          {/* Form */}
-          <form onSubmit={formik.handleSubmit} className="space-y-5">
-            <LoginForm formik={formik} />
+            <form onSubmit={formik.handleSubmit} className="space-y-4">
+              <div className="space-y-4">
+                <LoginForm formik={formik} />
+              </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-12 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-lg font-semibold
-                hover:from-gray-800 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900
-                transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-                shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Signing in...</span>
-                </>
-              ) : (
-                <>
-                  <span>Sign In</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
+              {/* Primary Action */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={cn(
+                  "group relative flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-black px-4 text-sm font-medium text-white shadow-sm transition-all hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black/10 focus:ring-offset-2 active:scale-[0.98]",
+                  isLoading && "cursor-not-allowed opacity-70",
+                )}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Authenticating...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </>
+                )}
+              </button>
+            </form>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">
-                New to platform?
+            {/* Divider */}
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-gray-100"></div>
+              <span className="text-[11px] font-medium uppercase text-gray-400 tracking-wider">
+                Or
               </span>
+              <div className="h-px flex-1 bg-gray-100"></div>
             </div>
-          </div>
 
-          {/* Register Link */}
-          <Link
-            to="/register"
-            className="block w-full h-12 border-2 border-gray-200 rounded-lg font-semibold text-gray-700
-              hover:border-gray-900 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900
-              transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            <Building2 className="w-4 h-4" />
-            <span>Create Organization</span>
-          </Link>
-        </div>
-
-        {/* Footer Links */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Need help accessing your account?{" "}
-            <a
-              href="#"
-              className="font-semibold text-gray-900 hover:underline focus:outline-none"
+            {/* Secondary Action */}
+            <Link
+              to="/register"
+              className="flex h-10 w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 active:scale-[0.98]"
             >
-              Contact Support
-            </a>
-          </p>
-        </div>
-
-        {/* Security Badge */}
-        <div className="mt-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-medium text-gray-600">
-              Secure SSL Connection
-            </span>
+              Create new organization
+            </Link>
           </div>
         </div>
+
+        {/* Footer / Links */}
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <Link
+            to="/forgot-password"
+            className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            Forgot your password?
+          </Link>
+
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Encrypted & Secure</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Optional: Bottom branding/copyright */}
+      <div className="absolute bottom-6 text-[10px] text-gray-400 font-medium">
+        © 2024 OMS Platform. All rights reserved.
       </div>
     </div>
   );

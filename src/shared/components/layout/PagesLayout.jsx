@@ -6,8 +6,8 @@ const PageHeader = ({ title, subtitle, icon: Icon, actionContent }) => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div className="flex items-center">
           {Icon && (
-            <div className="hidden sm:flex items-center justify-center bg-blue-100 p-3 rounded-lg mr-4">
-              <Icon className="w-7 h-7 text-blue-600" />
+            <div className="hidden sm:flex items-center justify-center bg-accent/20 p-3 rounded-lg mr-4">
+              <Icon className="w-7 h-7 text-primary" />
             </div>
           )}
           <div>

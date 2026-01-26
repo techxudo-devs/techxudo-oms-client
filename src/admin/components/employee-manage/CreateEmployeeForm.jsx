@@ -89,8 +89,8 @@ const CreateEmployeeForm = ({ onSuccess }) => {
       </div>
 
       {/* Info Text */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
+      <div className="bg-accent/10 border border-accent rounded-lg p-4">
+        <p className="text-sm" style={{ color: "var(--accent-foreground)" }}>
           <strong>Note:</strong> An offer letter will be automatically sent to
           the employee's email address. The employee will need to accept the
           offer and complete their profile to activate their account.
@@ -110,7 +110,7 @@ const CreateEmployeeForm = ({ onSuccess }) => {
         <button
           type="submit"
           disabled={isLoading || !formik.isValid}
-          className="px-6 py-2.5 bg-brand-primary text-white rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {isLoading ? (
             <>
