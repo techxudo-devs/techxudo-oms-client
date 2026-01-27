@@ -1,8 +1,13 @@
 import { Mail, MoreHorizontal } from "lucide-react";
 
-export default function CandidateCard({ app, onOpen, onMove }) {
+export default function CandidateCard({ app, onOpen, onMove, onDragStart }) {
   return (
-    <div className="group border border-zinc-200 bg-white rounded-xl p-3 shadow-sm hover:shadow transition-all cursor-pointer" onClick={() => onOpen(app)}>
+    <div
+      className="group border border-zinc-200 bg-white rounded-xl p-3 shadow-sm hover:shadow transition-all cursor-pointer"
+      onClick={() => onOpen(app)}
+      draggable
+      onDragStart={(e) => onDragStart && onDragStart(e, app)}
+    >
       <div className="flex items-start justify-between">
         <div>
           <div className="text-sm font-semibold text-zinc-900">{app.candidate?.name || "Unnamed"}</div>

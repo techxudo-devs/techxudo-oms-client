@@ -9,10 +9,14 @@ export const hiringApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ["HiringApplications"],
     }),
+    getApplication: builder.query({
+      query: (id) => ({ url: `/hiring/applications/${id}` }),
+      providesTags: (res, err, id) => [{ type: "HiringApplications", id }],
+    }),
     moveStage: builder.mutation({
       query: ({ id, ...body }) => ({
         url: `/hiring/applications/${id}/move`,
-        method: "POST",
+        method: "PUT",
         body,
       }),
       invalidatesTags: ["HiringApplications"],
@@ -26,18 +30,56 @@ export const hiringApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["HiringApplications"],
     }),
     sendEmail: builder.mutation({
-      query: ({ applicationId, subject, message, to }) => ({
+      query: ({ applicationId, type, subject, message, reason, interview }) => ({
         url: `/hiring/applications/${applicationId}/email`,
         method: "POST",
-        body: { subject, message, to },
+        body: { type, subject, message, reason, interview },
       }),
+    }),
+    addNote: builder.mutation({
+      query: ({ id, content, isPrivate = false }) => ({
+        url: `/hiring/applications/${id}/notes`,
+        method: "POST",
+        body: { content, isPrivate },
+      }),
+      invalidatesTags: (r, e, { id }) => [{ type: "HiringApplications", id }],
+    }),
+    scheduleInterview: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/hiring/applications/${id}/schedule-interview`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (r, e, { id }) => [{ type: "HiringApplications", id }],
+    }),
+    updateInterviewFeedback: builder.mutation({
+      query: ({ id, interviewId, ...body }) => ({
+        url: `/hiring/applications/${id}/interviews/${interviewId}/feedback`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (r, e, { id }) => [{ type: "HiringApplications", id }],
+    }),
+    deleteApplication: builder.mutation({
+      query: (id) => ({ url: `/hiring/applications/${id}`, method: "DELETE" }),
+      invalidatesTags: ["HiringApplications"],
+    }),
+    getHiringStats: builder.query({
+      query: () => ({ url: "/hiring/stats" }),
+      providesTags: ["HiringApplications"],
     }),
   }),
 });
 
 export const {
   useListApplicationsQuery,
+  useGetApplicationQuery,
   useMoveStageMutation,
   useCreateCandidateMutation,
   useSendEmailMutation,
+  useAddNoteMutation,
+  useScheduleInterviewMutation,
+  useUpdateInterviewFeedbackMutation,
+  useDeleteApplicationMutation,
+  useGetHiringStatsQuery,
 } = hiringApiSlice;

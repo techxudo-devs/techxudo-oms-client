@@ -101,10 +101,14 @@ export function Navbar({ expanded, setExpanded }) {
             <Search className="w-5 h-5" />
           </button>
 
-          {/* Notifications */}
-          <button className="relative p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-full transition-colors group">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white scale-100 transition-transform group-hover:scale-110" />
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+            title="Logout"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline text-sm">Logout</span>
           </button>
 
           {/* Divider */}

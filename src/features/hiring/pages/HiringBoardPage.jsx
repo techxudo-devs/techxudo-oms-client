@@ -1,26 +1,25 @@
-import { useMemo, useState } from "react";
-import { Plus, MoveRight } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Plus, MoveRight, FileSignature, DollarSign, Phone, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import {
-  useListApplicationsQuery,
-  useMoveStageMutation,
-  useCreateCandidateMutation,
-} from "../api/hiringApiSlice";
-import { useGetCurrentOrganizationQuery } from "@/shared/store/features/organizationApiSlice";
+import useHiringBoard from "@/admin/hooks/useHiringBoard";
 import CandidateCard from "../components/CandidateCard";
 import CandidateDrawer from "../components/CandidateDrawer";
+import AddCandidateModal from "../components/AddCandidateModal";
 
-const STAGES = ["applied", "screen", "interview", "offer", "hired"];
+const STAGES = ["applied", "screening", "interview", "offer", "hired"];
 
 export default function HiringBoardPage() {
-  const [stageFilter, setStageFilter] = useState(null);
-  const { data, isFetching } = useListApplicationsQuery({});
-  const [moveStage] = useMoveStageMutation();
-  const [createCandidate, { isLoading: creating }] =
-    useCreateCandidateMutation();
+  const {
+    grouped,
+    isFetching,
+    creating,
+    departments,
+    moveStage,
+    createCandidate,
+  } = useHiringBoard();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -37,38 +36,9 @@ export default function HiringBoardPage() {
     phone: "",
     joiningDate: "",
   });
-  const { data: orgData } = useGetCurrentOrganizationQuery();
-  const departments = orgData?.data?.departments || [];
+  const [showAdd, setShowAdd] = useState(false);
+  const draggedRef = useRef(null);
   const [localAdds, setLocalAdds] = useState([]);
-
-  const appsByStage = useMemo(() => {
-    const src = Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data)
-        ? data
-        : [];
-    // Merge server items with local overrides by id, preferring local
-    const byId = new Map();
-    for (const it of src) {
-      const key = it.id || it._id;
-      if (!key) continue;
-      byId.set(key, it);
-    }
-    for (const it of localAdds) {
-      const key = it.id || it._id;
-      if (!key) continue;
-      const base = byId.get(key) || {};
-      byId.set(key, { ...base, ...it });
-    }
-    const merged = Array.from(byId.values());
-    const map = Object.fromEntries(STAGES.map((s) => [s, []]));
-    for (const a of merged) {
-      const s = (a.stage || "applied").toLowerCase();
-      if (!map[s]) map[s] = [];
-      map[s].push(a);
-    }
-    return map;
-  }, [data, localAdds]);
 
   const openDrawer = (app) => {
     // Do not open email drawer for 'applied' stage
@@ -78,22 +48,6 @@ export default function HiringBoardPage() {
   };
 
   const onMove = async (app, toStage) => {
-    const key = app.id || app._id;
-    // Optimistic local update (frontend demo)
-    setLocalAdds((prev) => {
-      let updated = false;
-      const next = prev.map((x) => {
-        const k = x.id || x._id;
-        if (k === key) {
-          updated = true;
-          return { ...x, stage: toStage };
-        }
-        return x;
-      });
-      if (!updated) next.push({ ...app, stage: toStage });
-      return next;
-    });
-
     try {
       if (toStage === "offer") {
         setOfferDialog({
@@ -105,21 +59,14 @@ export default function HiringBoardPage() {
         });
         return;
       }
-      await moveStage({
-        id: app.id || app._id,
-        stage: toStage,
-        to: app.candidate?.email,
-        candidateName: app.candidate?.name,
-        jobTitle: app.jobTitle,
-      }).unwrap();
+      await moveStage(app, toStage);
       toast.success(
-        toStage === "screen"
+        toStage === "screening"
           ? "Moved to screening and email sent"
           : `Moved to ${toStage}`,
       );
     } catch (e) {
-      // Keep local movement for demo
-      toast.info("Moved locally (demo mode)");
+      toast.error(e?.data?.message || "Failed to move application");
     }
   };
 
@@ -138,14 +85,8 @@ export default function HiringBoardPage() {
         toast.error("Phone number is required");
         return;
       }
-      await moveStage({
-        id: app.id || app._id,
-        stage: "offer",
-        salary: salaryNum,
-        phone: phoneStr,
-        joiningDate: joiningDate || undefined,
-        jobTitle: app.jobTitle,
-      }).unwrap();
+      // Move application to offer and persist details server-side
+      await moveStage(app, "offer", "Offer initiated", { salary: salaryNum, joiningDate: joiningDate || undefined });
       const key = app.id || app._id;
       setLocalAdds((prev) => {
         let updated = false;
@@ -171,69 +112,12 @@ export default function HiringBoardPage() {
         joiningDate: "",
       });
     } catch (e) {
-      // Demo fallback: move locally even if API fails
-      const { app } = offerDialog;
-      const key = app.id || app._id;
-      setLocalAdds((prev) => {
-        let updated = false;
-        const next = prev.map((x) => {
-          const k = x.id || x._id;
-          if (k === key) {
-            updated = true;
-            return { ...x, stage: "offer" };
-          }
-          return x;
-        });
-        if (!updated) next.push({ ...app, stage: "offer" });
-        return next;
-      });
-      setOfferDialog({
-        open: false,
-        app: null,
-        salary: "",
-        phone: "",
-        joiningDate: "",
-      });
-      toast.info("Offer initiated locally (demo mode)");
+      toast.error(e?.data?.message || "Failed to initiate offer");
     }
   };
 
   const addCandidate = async () => {
-    if (!newCandidate.name || !newCandidate.email) {
-      toast.error("Name and email are required");
-      return;
-    }
-    try {
-      const resp = await createCandidate(newCandidate).unwrap();
-      if (resp?.data) setLocalAdds((prev) => [resp.data, ...prev]);
-      else
-        setLocalAdds((prev) => [
-          {
-            _id: Date.now().toString(),
-            stage: "applied",
-            jobTitle: newCandidate.jobTitle,
-            department: newCandidate.department,
-            candidate: { name: newCandidate.name, email: newCandidate.email },
-          },
-          ...prev,
-        ]);
-      toast.success("Candidate added (demo)");
-      setNewCandidate({ name: "", email: "", jobTitle: "", department: "" });
-    } catch (e) {
-      // Fallback: add locally in demo mode
-      setLocalAdds((prev) => [
-        {
-          _id: Date.now().toString(),
-          stage: "applied",
-          jobTitle: newCandidate.jobTitle,
-          department: newCandidate.department,
-          candidate: { name: newCandidate.name, email: newCandidate.email },
-        },
-        ...prev,
-      ]);
-      setNewCandidate({ name: "", email: "", jobTitle: "", department: "" });
-      toast.info("Candidate added locally (demo)");
-    }
+    setShowAdd(true);
   };
 
   return (
@@ -246,47 +130,8 @@ export default function HiringBoardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-2">
-            {/* Quick add candidate */}
-            <Input
-              placeholder="Candidate name"
-              value={newCandidate.name}
-              onChange={(e) =>
-                setNewCandidate({ ...newCandidate, name: e.target.value })
-              }
-            />
-            <Input
-              placeholder="Email"
-              value={newCandidate.email}
-              onChange={(e) =>
-                setNewCandidate({ ...newCandidate, email: e.target.value })
-              }
-            />
-            <Input
-              placeholder="Job Title"
-              value={newCandidate.jobTitle}
-              onChange={(e) =>
-                setNewCandidate({ ...newCandidate, jobTitle: e.target.value })
-              }
-            />
-            <select
-              className="h-9 border rounded-md px-2 text-sm"
-              value={newCandidate.department}
-              onChange={(e) =>
-                setNewCandidate({ ...newCandidate, department: e.target.value })
-              }
-            >
-              <option value="">Department</option>
-              {departments.map((d) => (
-                <option key={d._id || d.name} value={d.name}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
-          </div>
           <Button onClick={addCandidate} disabled={creating}>
-            <Plus className="w-4 h-4 mr-2" />{" "}
-            {creating ? "Adding..." : "Add Candidate"}
+            <Plus className="w-4 h-4 mr-2" /> Add Candidate
           </Button>
         </div>
       </div>
@@ -297,28 +142,36 @@ export default function HiringBoardPage() {
           <div
             key={stage}
             className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (draggedRef.current) onMove(draggedRef.current, stage);
+            }}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 {stage}
               </div>
               <div className="text-[11px] text-zinc-400">
-                {appsByStage[stage]?.length || 0}
+                {grouped[stage]?.length || 0}
               </div>
             </div>
             <div className="space-y-2 min-h-10">
-              {(appsByStage[stage] || []).map((app) => (
+              {(grouped[stage] || []).map((app) => (
                 <CandidateCard
                   key={app.id || app._id}
                   app={app}
                   onOpen={(a) => openDrawer(a)}
+                  onDragStart={(e, a) => {
+                    draggedRef.current = a;
+                  }}
                   onMove={() => {}}
                 />
               ))}
               {isFetching && (
                 <div className="text-xs text-zinc-400">Loading...</div>
               )}
-              {!isFetching && (appsByStage[stage] || []).length === 0 && (
+              {!isFetching && (grouped[stage] || []).length === 0 && (
                 <div className="text-xs text-zinc-400">No candidates</div>
               )}
             </div>
@@ -332,9 +185,9 @@ export default function HiringBoardPage() {
                   variant="outline"
                   size="sm"
                   className="w-full mt-1"
-                  disabled={!appsByStage[stage]?.length}
+                  disabled={!grouped[stage]?.length}
                   onClick={() => {
-                    const app = appsByStage[stage][0];
+                    const app = grouped[stage][0];
                     const nextIdx = Math.min(
                       STAGES.indexOf(stage) + 1,
                       STAGES.length - 1,
@@ -356,70 +209,91 @@ export default function HiringBoardPage() {
         app={selected}
       />
 
+      <AddCandidateModal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        departments={departments}
+        onSubmit={async (values) => {
+          const ok = await createCandidate(values);
+          if (ok) toast.success("Candidate added");
+        }}
+      />
+
       {/* Offer Details Dialog */}
       {offerDialog.open && (
         <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/30"
-            onClick={() =>
-              setOfferDialog({
-                open: false,
-                app: null,
-                salary: "",
-                phone: "",
-                joiningDate: "",
-              })
-            }
-          />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl shadow-xl border p-4">
-            <div className="text-sm font-semibold mb-2">Initiate Offer</div>
-            <div className="space-y-3">
-              <div className="text-xs text-zinc-500">
-                Provide details to send offer letter
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setOfferDialog({ open: false, app: null, salary: "", phone: "", joiningDate: "" })} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl border p-6 ring-1 ring-black/5">
+            {/* Header */}
+            <div className="flex items-start gap-3 mb-4">
+              <div className="h-10 w-10 rounded-xl bg-violet-600/10 text-violet-700 flex items-center justify-center">
+                <FileSignature className="w-5 h-5" />
               </div>
+              <div>
+                <div className="text-base font-semibold">Initiate Offer</div>
+                <div className="text-xs text-zinc-500">Provide the details below to send a formal offer letter</div>
+              </div>
+            </div>
+
+            {/* Form */}
+            <div className="space-y-4">
               <div className="grid grid-cols-1 gap-3">
-                <Input
-                  placeholder="Salary (numeric)"
-                  value={offerDialog.salary}
-                  onChange={(e) =>
-                    setOfferDialog((s) => ({ ...s, salary: e.target.value }))
-                  }
-                />
-                <Input
-                  placeholder="Phone"
-                  value={offerDialog.phone}
-                  onChange={(e) =>
-                    setOfferDialog((s) => ({ ...s, phone: e.target.value }))
-                  }
-                />
-                <Input
-                  type="date"
-                  placeholder="Joining Date (optional)"
-                  value={offerDialog.joiningDate}
-                  onChange={(e) =>
-                    setOfferDialog((s) => ({
-                      ...s,
-                      joiningDate: e.target.value,
-                    }))
-                  }
-                />
+                <div>
+                  <label className="text-xs font-medium text-zinc-600 mb-1 block">Salary</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+                      <DollarSign className="w-4 h-4" />
+                    </div>
+                    <Input
+                      className="pl-9"
+                      placeholder="e.g. 150000"
+                      value={offerDialog.salary}
+                      onChange={(e) => setOfferDialog((s) => ({ ...s, salary: e.target.value }))}
+                    />
+                  </div>
+                  <p className="mt-1 text-[11px] text-zinc-400">Enter gross monthly amount</p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-zinc-600 mb-1 block">Phone</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <Input
+                      className="pl-9"
+                      placeholder="Candidate phone"
+                      value={offerDialog.phone}
+                      onChange={(e) => setOfferDialog((s) => ({ ...s, phone: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-zinc-600 mb-1 block">Joining Date (optional)</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+                        <CalendarDays className="w-4 h-4" />
+                      </div>
+                      <Input
+                        type="date"
+                        className="pl-9"
+                        value={offerDialog.joiningDate}
+                        onChange={(e) => setOfferDialog((s) => ({ ...s, joiningDate: e.target.value }))}
+                      />
+                    </div>
+                </div>
               </div>
-              <div className="flex items-center justify-end gap-2 pt-1">
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <Button
                   variant="outline"
-                  onClick={() =>
-                    setOfferDialog({
-                      open: false,
-                      app: null,
-                      salary: "",
-                      phone: "",
-                      joiningDate: "",
-                    })
-                  }
+                  onClick={() => setOfferDialog({ open: false, app: null, salary: "", phone: "", joiningDate: "" })}
                 >
                   Cancel
                 </Button>
-                <Button onClick={submitOffer}>Send Offer</Button>
+                <Button onClick={submitOffer} className="bg-violet-600 hover:bg-violet-700">Send Offer</Button>
               </div>
             </div>
           </div>
