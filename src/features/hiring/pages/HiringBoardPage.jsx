@@ -89,7 +89,7 @@ export default function HiringBoardPage() {
         return;
       }
       // Move application to offer and persist details server-side
-      await moveStage(app, "offer", "Offer initiated", { salary: salaryNum, joiningDate: joiningDate || undefined });
+      await moveStage(app, "offer", "Offer initiated", { salary: salaryNum, joiningDate: joiningDate || undefined, phone: phoneStr });
       const key = app.id || app._id;
       setLocalAdds((prev) => {
         let updated = false;
