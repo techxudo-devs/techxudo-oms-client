@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import useHiringBoard from "@/admin/hooks/useHiringBoard";
 import CandidateCard from "../components/CandidateCard";
 import CandidateDrawer from "../components/CandidateDrawer";
+import { useDeleteApplicationMutation, useDeleteCandidateMutation } from "../api/hiringApiSlice";
 import AddCandidateModal from "../components/AddCandidateModal";
 
 const STAGES = ["applied", "screening", "interview", "offer", "hired"];
@@ -39,10 +40,12 @@ export default function HiringBoardPage() {
   const [showAdd, setShowAdd] = useState(false);
   const draggedRef = useRef(null);
   const [localAdds, setLocalAdds] = useState([]);
+  const [deleteApplication] = useDeleteApplicationMutation();
+  const [deleteCandidate] = useDeleteCandidateMutation();
 
   const openDrawer = (app) => {
-    // Do not open email drawer for 'applied' stage
-    if ((app.stage || "").toLowerCase() === "applied") return;
+    // Open drawer only for interview stage as requested
+    if ((app.stage || "").toLowerCase() !== "interview") return;
     setSelected(app);
     setDrawerOpen(true);
   };
@@ -166,6 +169,26 @@ export default function HiringBoardPage() {
                     draggedRef.current = a;
                   }}
                   onMove={() => {}}
+                  onDeleteApplication={async (a) => {
+                    if (!import.meta.env.DEV) return;
+                    try {
+                      await deleteApplication(a._id || a.id).unwrap();
+                      toast.success("Application deleted");
+                    } catch (e) {
+                      toast.error(e?.data?.message || "Failed to delete application");
+                    }
+                  }}
+                  onDeleteCandidate={async (a) => {
+                    if (!import.meta.env.DEV) return;
+                    const candId = a?.candidate?._id || a?.candidateId?._id || a?.candidateId;
+                    if (!candId) return toast.error("Candidate id missing");
+                    try {
+                      await deleteCandidate(candId).unwrap();
+                      toast.success("Candidate deleted");
+                    } catch (e) {
+                      toast.error(e?.data?.message || "Failed to delete candidate");
+                    }
+                  }}
                 />
               ))}
               {isFetching && (

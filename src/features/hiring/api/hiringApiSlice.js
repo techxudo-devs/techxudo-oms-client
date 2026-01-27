@@ -64,6 +64,10 @@ export const hiringApiSlice = apiSlice.injectEndpoints({
       query: (id) => ({ url: `/hiring/applications/${id}`, method: "DELETE" }),
       invalidatesTags: ["HiringApplications"],
     }),
+    deleteCandidate: builder.mutation({
+      query: (id) => ({ url: `/hiring/candidates/${id}`, method: "DELETE" }),
+      invalidatesTags: ["HiringApplications"],
+    }),
     getHiringStats: builder.query({
       query: () => ({ url: "/hiring/stats" }),
       providesTags: ["HiringApplications"],
@@ -81,5 +85,6 @@ export const {
   useScheduleInterviewMutation,
   useUpdateInterviewFeedbackMutation,
   useDeleteApplicationMutation,
+  useDeleteCandidateMutation,
   useGetHiringStatsQuery,
 } = hiringApiSlice;
