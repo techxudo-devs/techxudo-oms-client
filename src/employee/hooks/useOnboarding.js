@@ -6,7 +6,9 @@ import {
   useRejectOfferMutation,
   useCompleteOnboardingMutation,
 } from "../apiSlices/onBoardingApiSlice";
+import { useEnsureEmploymentFormMutation } from "../apiSlices/onBoardingApiSlice";
 import { uploadToCloudinary } from "../../shared/utils/cloudinary";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 const initialValues = {
@@ -41,6 +43,7 @@ const validationSchema = Yup.object({
 
 export const useOnboarding = () => {
   const { token } = useParams(); // Get token from URL: e.g., /onboarding/:token
+  const navigate = useNavigate();
 
   // Fetch onboarding details
   const {
@@ -57,6 +60,7 @@ export const useOnboarding = () => {
   const [rejectOffer, { isLoading: isRejecting }] = useRejectOfferMutation();
   const [completeOnboarding, { isLoading: isCompleting }] =
     useCompleteOnboardingMutation();
+  const [ensureEmploymentForm] = useEnsureEmploymentFormMutation();
 
   const onSubmit = async (values, { setSubmitting, setStatus }) => {
     try {
@@ -104,14 +108,39 @@ export const useOnboarding = () => {
 
   const handleAccept = async () => {
     try {
-      await acceptOffer(token).unwrap();
+      const res = await acceptOffer(token).unwrap();
       toast.success("Offer accepted successfully!");
+      const formToken = res?.data?.employmentFormToken;
+      if (formToken) {
+        navigate(`/employment/form/${formToken}`);
+      }
     } catch (err) {
       const errorMessage = err?.data?.error || "Failed to accept offer";
       toast.error(errorMessage);
       console.error("Failed to accept offer:", err);
     }
   };
+
+  // Auto-redirect to employment form if already accepted
+  useEffect(() => {
+    let cancelled = false;
+    const go = async () => {
+      try {
+        if (onboardingDetails?.data?.status === "accepted") {
+          const res = await ensureEmploymentForm(token).unwrap();
+          if (cancelled) return;
+          const formToken = res?.data?.token;
+          if (formToken) navigate(`/employment/form/${formToken}`);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    go();
+    return () => {
+      cancelled = true;
+    };
+  }, [onboardingDetails?.data?.status]);
 
   // Handler for rejecting the offer
   const handleReject = async (reason) => {
@@ -127,6 +156,7 @@ export const useOnboarding = () => {
 
   return {
     onboardingDetails: onboardingDetails?.data,
+    org: onboardingDetails?.data?.org,
     token,
     isLoading: isLoadingDetails,
     isError,

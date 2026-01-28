@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export const OfferDetail = ({ details }) => {
-  const { actions, actionState } = useOnboarding();
+  const { actions, actionState, org } = useOnboarding();
 
   // A simple function to format the salary
   const formatCurrency = (amount) => {
@@ -33,23 +33,28 @@ export const OfferDetail = ({ details }) => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-12 px-4">
+    <div className="flex flex-col items-center w-full min-h-screen bg-gradient-to-br from-gray-50 via-white to-slate-50 py-12 px-4">
       {/* Header Section */}
       <div className="text-center max-w-3xl">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
-          TECHXUDO
-        </h1>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          {org?.logo ? (
+            <img src={org.logo} alt={org?.companyName || "Logo"} className="w-12 h-12 rounded" />
+          ) : null}
+          <h1 className="text-4xl font-extrabold text-gray-900">
+            {org?.companyName || "You're Invited!"}
+          </h1>
+        </div>
         <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             You're Invited!
           </h2>
           <p className="text-lg text-gray-600">
             Congratulations,{" "}
-            <span className="font-semibold text-blue-600">
+            <span className="font-semibold text-brand-primary">
               {details.offerDetails.fullName}
             </span>
             ! We are thrilled to offer you the position of{" "}
-            <span className="font-semibold text-blue-600">
+            <span className="font-semibold text-brand-primary">
               {details.offerDetails.designation}
             </span>
             .
@@ -60,7 +65,7 @@ export const OfferDetail = ({ details }) => {
       {/* Offer Details Card */}
       <div className="w-full max-w-6xl bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
+        <div className="p-6 bg-brand-primary">
           <h2 className="text-3xl font-bold text-white text-center">
             Offer Summary
           </h2>
@@ -71,17 +76,17 @@ export const OfferDetail = ({ details }) => {
           {/* Personal Information */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-600" />
+              <User className="w-5 h-5 text-brand-primary" />
               Personal Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                    <User className="w-5 h-5 text-blue-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-brand-primary/10 rounded-lg">
+                    <User className="w-5 h-5 text-brand-primary" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-sm font-medium text-blue-700">
+                    <span className="text-sm font-medium text-gray-700">
                       Full Name
                     </span>
                     <p className="font-semibold text-gray-900 mt-1">
@@ -91,13 +96,13 @@ export const OfferDetail = ({ details }) => {
                 </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                    <Mail className="w-5 h-5 text-blue-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-brand-primary/10 rounded-lg">
+                    <Mail className="w-5 h-5 text-brand-primary" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-sm font-medium text-blue-700">
+                    <span className="text-sm font-medium text-gray-700">
                       Email Address
                     </span>
                     <p className="font-semibold text-gray-900 mt-1">
@@ -185,33 +190,33 @@ export const OfferDetail = ({ details }) => {
           {/* Compensation & Start Date */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-blue-600" />
+              <DollarSign className="w-5 h-5 text-brand-primary" />
               Compensation & Start Date
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                    <DollarSign className="w-5 h-5 text-blue-600" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-brand-primary/10 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-brand-primary" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-sm font-medium text-blue-700">
+                    <span className="text-sm font-medium text-gray-700">
                       Annual Salary
                     </span>
-                    <p className="font-bold text-2xl text-blue-600 mt-1">
+                    <p className="font-bold text-2xl text-brand-primary mt-1">
                       {formatCurrency(details.offerDetails.salary)}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                    <Calendar className="w-5 h-5 text-blue-600" />
+                    <div className="flex items-center justify-center w-10 h-10 bg-brand-primary/10 rounded-lg">
+                    <Calendar className="w-5 h-5 text-brand-primary" />
                   </div>
                   <div className="flex-1">
-                    <span className="text-sm font-medium text-blue-700">
+                    <span className="text-sm font-medium text-gray-700">
                       Start Date
                     </span>
                     <p className="font-semibold text-gray-900 mt-1">

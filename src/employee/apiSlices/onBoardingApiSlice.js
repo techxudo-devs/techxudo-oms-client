@@ -29,6 +29,12 @@ export const onBoardingApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Onboarding"],
     }),
+    ensureEmploymentForm: builder.mutation({
+      query: (token) => ({
+        url: `/onboarding/${token}/employment-form`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -37,4 +43,5 @@ export const {
   useAcceptOfferMutation,
   useRejectOfferMutation,
   useCompleteOnboardingMutation,
+  useEnsureEmploymentFormMutation,
 } = onBoardingApiSlice;

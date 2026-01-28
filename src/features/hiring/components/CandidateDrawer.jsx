@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   X,
   Calendar,
@@ -12,6 +12,7 @@ import {
   MessageSquare,
   CheckCircle2,
   Briefcase,
+  ChevronRight,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +33,29 @@ const TABS = [
   { id: "notes", label: "Notes", icon: MessageSquare },
 ];
 
+// Generate time slots (9:00 AM to 6:00 PM)
+const TIME_SLOTS = [
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+];
+
 export default function CandidateDrawer({ open, onClose, app }) {
   const [activeTab, setActiveTab] = useState("schedule");
   const [subject, setSubject] = useState("");
@@ -45,14 +69,23 @@ export default function CandidateDrawer({ open, onClose, app }) {
 
   // Interview State
   const [iv, setIv] = useState({
-    scheduledAt: "",
+    scheduledAt: "", // ISO string format preferred by backend usually
     duration: 60,
-    type: "video", // Default to modern standard
+    type: "video",
     meetingLink: "",
     location: "",
   });
 
-  // Note State
+  // Helper: Derived state for splitting Date and Time from ISO string
+  const datePart = useMemo(
+    () => (iv.scheduledAt ? iv.scheduledAt.split("T")[0] : ""),
+    [iv.scheduledAt],
+  );
+  const timePart = useMemo(
+    () => (iv.scheduledAt ? iv.scheduledAt.split("T")[1]?.substring(0, 5) : ""),
+    [iv.scheduledAt],
+  );
+
   const [note, setNote] = useState("");
 
   // Reset state when drawer opens/closes or app changes
@@ -66,11 +99,30 @@ export default function CandidateDrawer({ open, onClose, app }) {
   }, [open, app]);
 
   if (!open || !app) return null;
-
-  // Guard clause: Hide drawer if stage is 'applied' (as per requirement)
   if ((app.stage || "").toLowerCase() === "applied") return null;
 
   // --- Handlers ---
+
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+    // If time is already selected, keep it, otherwise default to 09:00
+    const timeToUse = timePart || "09:00";
+    setIv((prev) => ({ ...prev, scheduledAt: `${newDate}T${timeToUse}` }));
+  };
+
+  const handleTimeSelect = (time) => {
+    // If date is selected, use it, otherwise default to today
+    const dateToUse = datePart || new Date().toISOString().split("T")[0];
+    setIv((prev) => ({ ...prev, scheduledAt: `${dateToUse}T${time}` }));
+  };
+
+  const formatTimeLabel = (time) => {
+    const [hour, minute] = time.split(":");
+    const h = parseInt(hour, 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const formattedHour = h % 12 || 12;
+    return `${formattedHour}:${minute} ${ampm}`;
+  };
 
   const handleSubmitEmail = async () => {
     if (!subject || !message)
@@ -211,39 +263,70 @@ export default function CandidateDrawer({ open, onClose, app }) {
                     Interview Details
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                        Date & Time
-                      </label>
+                  {/* Date Input */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                      Select Date
+                    </label>
+                    <Input
+                      type="date"
+                      className="bg-zinc-50 border-zinc-200 focus:bg-white"
+                      value={datePart}
+                      onChange={handleDateChange}
+                    />
+                  </div>
+
+                  {/* Time Pills Grid */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                      Select Time
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {TIME_SLOTS.map((time) => {
+                        const isSelected = timePart === time;
+                        return (
+                          <button
+                            key={time}
+                            onClick={() => handleTimeSelect(time)}
+                            className={cn(
+                              "px-2 py-2 text-xs font-medium rounded-md border transition-all duration-200",
+                              isSelected
+                                ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                                : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50",
+                            )}
+                          >
+                            {formatTimeLabel(time)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {!datePart && (
+                      <p className="text-[10px] text-amber-600 mt-1">
+                        * Selecting a time will default to today if no date is
+                        picked.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Duration */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                      Duration (min)
+                    </label>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
                       <Input
-                        type="datetime-local"
-                        className="bg-zinc-50 border-zinc-200 focus:bg-white"
-                        value={iv.scheduledAt}
+                        type="number"
+                        step={15}
+                        className="pl-9 bg-zinc-50 border-zinc-200 focus:bg-white"
+                        value={iv.duration}
                         onChange={(e) =>
-                          setIv((s) => ({ ...s, scheduledAt: e.target.value }))
+                          setIv((s) => ({
+                            ...s,
+                            duration: Number(e.target.value),
+                          }))
                         }
                       />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                        Duration (min)
-                      </label>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                        <Input
-                          type="number"
-                          step={15}
-                          className="pl-9 bg-zinc-50 border-zinc-200 focus:bg-white"
-                          value={iv.duration}
-                          onChange={(e) =>
-                            setIv((s) => ({
-                              ...s,
-                              duration: Number(e.target.value),
-                            }))
-                          }
-                        />
-                      </div>
                     </div>
                   </div>
 
@@ -335,7 +418,7 @@ export default function CandidateDrawer({ open, onClose, app }) {
               </div>
             )}
 
-            {/* 2. Email Tab */}
+            {/* Email and Notes tabs remain unchanged... */}
             {activeTab === "email" && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm space-y-4 h-full">
@@ -377,7 +460,6 @@ export default function CandidateDrawer({ open, onClose, app }) {
               </div>
             )}
 
-            {/* 3. Notes Tab */}
             {activeTab === "notes" && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm space-y-4">
@@ -401,9 +483,7 @@ export default function CandidateDrawer({ open, onClose, app }) {
                   </div>
                 </div>
 
-                {/* Timeline Placeholder */}
                 <div className="relative pl-4 border-l border-zinc-200 space-y-6">
-                  {/* Mock previous entry */}
                   <div className="relative">
                     <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-zinc-200 ring-4 ring-white" />
                     <div className="text-xs text-zinc-500 mb-0.5">
@@ -411,15 +491,6 @@ export default function CandidateDrawer({ open, onClose, app }) {
                     </div>
                     <div className="text-sm text-zinc-800 bg-white p-3 rounded-lg border border-zinc-100 shadow-sm">
                       Application reviewed. Moved to Screening stage.
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-indigo-100 ring-4 ring-white" />
-                    <div className="text-xs text-zinc-500 mb-0.5">
-                      Yesterday
-                    </div>
-                    <div className="text-sm text-zinc-800 bg-white p-3 rounded-lg border border-zinc-100 shadow-sm">
-                      Applied via LinkedIn.
                     </div>
                   </div>
                 </div>
@@ -451,4 +522,3 @@ export default function CandidateDrawer({ open, onClose, app }) {
     </>
   );
 }
-  

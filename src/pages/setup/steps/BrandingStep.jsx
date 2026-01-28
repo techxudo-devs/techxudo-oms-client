@@ -28,7 +28,7 @@ const BrandingStep = ({ formData, updateNestedField, updateField, errors }) => {
     if (file.size > 2 * 1024 * 1024) {
       setUploadError("Image size must be less than 2MB");
       return;
-    }
+    } 
 
     setIsUploading(true);
     setUploadError("");

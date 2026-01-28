@@ -160,6 +160,7 @@ const useEmploymentForm = (token) => {
   return {
     formik,
     policies: formResponse?.data?.policies || [],
+    org: formResponse?.org || null,
     isLoading,
     isError,
     error,

@@ -8,6 +8,7 @@ import {
   ContactInfoStep,
   AddressInfoStep,
   PoliciesStep,
+  AccountSetupStep,
 } from "../components/employment-form";
 
 /**
@@ -36,6 +37,7 @@ const EmploymentFormPage = () => {
     nextStep,
     prevStep,
     togglePolicy,
+    org,
   } = useEmploymentForm(token);
 
   const stepComponents = [
@@ -44,6 +46,7 @@ const EmploymentFormPage = () => {
     ContactInfoStep,
     AddressInfoStep,
     PoliciesStep,
+    AccountSetupStep,
   ];
 
   const CurrentStep = stepComponents[currentStep];
@@ -116,9 +119,14 @@ const EmploymentFormPage = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-t-2xl shadow-xl px-8 py-6 border-b">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Employment Form
-          </h1>
+          <div className="flex items-center gap-3 mb-2">
+            {org?.logo ? (
+              <img src={org.logo} alt={org?.companyName || "Logo"} className="w-10 h-10 rounded" />
+            ) : null}
+            <h1 className="text-2xl font-bold text-gray-900">
+              {org?.companyName ? `${org.companyName} Employment Form` : "Employment Form"}
+            </h1>
+          </div>
           <p className="text-sm text-gray-600 mb-4">
             Step {currentStep + 1} of {steps.length} -{" "}
             {steps[currentStep]?.label}

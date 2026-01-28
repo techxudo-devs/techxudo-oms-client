@@ -41,6 +41,17 @@ export const validationSchemas = [
       })
     ),
   }),
+  // Step 5: Account Setup
+  Yup.object({
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+      .required("Confirm your password"),
+    github: Yup.string().url("Must be a valid URL").nullable(),
+    linkedin: Yup.string().url("Must be a valid URL").nullable(),
+  }),
 ];
 
 // Initial form values
@@ -73,6 +84,11 @@ export const initialValues = {
   secondaryState: "",
   secondaryZipCode: "",
   acceptedPolicies: [],
+  // Account setup
+  password: "",
+  confirmPassword: "",
+  github: "",
+  linkedin: "",
 };
 
 // Fields for each step
@@ -82,6 +98,7 @@ export const stepFields = [
   ["phone", "alternatePhone", "email", "emergencyContactName", "emergencyContactRelationship", "emergencyContactPhone"],
   ["primaryStreet", "primaryCity", "primaryState", "primaryZipCode", "secondaryStreet", "secondaryCity", "secondaryState", "secondaryZipCode"],
   ["acceptedPolicies"],
+  ["password", "confirmPassword", "github", "linkedin"],
 ];
 
 // Transform form values to API format
@@ -128,4 +145,9 @@ export const transformToApiFormat = (values) => ({
     },
   },
   acceptedPolicies: values.acceptedPolicies,
+  account: {
+    password: values.password,
+    github: values.github,
+    linkedin: values.linkedin,
+  },
 });

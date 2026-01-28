@@ -1,5 +1,12 @@
 import { useMemo, useRef, useState } from "react";
-import { Plus, MoveRight, FileSignature, DollarSign, Phone, CalendarDays } from "lucide-react";
+import {
+  Plus,
+  MoveRight,
+  FileSignature,
+  DollarSign,
+  Phone,
+  CalendarDays,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,7 +14,10 @@ import { toast } from "sonner";
 import useHiringBoard from "@/admin/hooks/useHiringBoard";
 import CandidateCard from "../components/CandidateCard";
 import CandidateDrawer from "../components/CandidateDrawer";
-import { useDeleteApplicationMutation, useDeleteCandidateMutation } from "../api/hiringApiSlice";
+import {
+  useDeleteApplicationMutation,
+  useDeleteCandidateMutation,
+} from "../api/hiringApiSlice";
 import AddCandidateModal from "../components/AddCandidateModal";
 
 const STAGES = ["applied", "screening", "interview", "offer", "hired"];
@@ -89,7 +99,11 @@ export default function HiringBoardPage() {
         return;
       }
       // Move application to offer and persist details server-side
-      await moveStage(app, "offer", "Offer initiated", { salary: salaryNum, joiningDate: joiningDate || undefined, phone: phoneStr });
+      await moveStage(app, "offer", "Offer initiated", {
+        salary: salaryNum,
+        joiningDate: joiningDate || undefined,
+        phone: phoneStr,
+      });
       const key = app.id || app._id;
       setLocalAdds((prev) => {
         let updated = false;
@@ -175,18 +189,25 @@ export default function HiringBoardPage() {
                       await deleteApplication(a._id || a.id).unwrap();
                       toast.success("Application deleted");
                     } catch (e) {
-                      toast.error(e?.data?.message || "Failed to delete application");
+                      toast.error(
+                        e?.data?.message || "Failed to delete application",
+                      );
                     }
                   }}
                   onDeleteCandidate={async (a) => {
                     if (!import.meta.env.DEV) return;
-                    const candId = a?.candidate?._id || a?.candidateId?._id || a?.candidateId;
+                    const candId =
+                      a?.candidate?._id ||
+                      a?.candidateId?._id ||
+                      a?.candidateId;
                     if (!candId) return toast.error("Candidate id missing");
                     try {
                       await deleteCandidate(candId).unwrap();
                       toast.success("Candidate deleted");
                     } catch (e) {
-                      toast.error(e?.data?.message || "Failed to delete candidate");
+                      toast.error(
+                        e?.data?.message || "Failed to delete candidate",
+                      );
                     }
                   }}
                 />
@@ -245,7 +266,18 @@ export default function HiringBoardPage() {
       {/* Offer Details Dialog */}
       {offerDialog.open && (
         <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setOfferDialog({ open: false, app: null, salary: "", phone: "", joiningDate: "" })} />
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            onClick={() =>
+              setOfferDialog({
+                open: false,
+                app: null,
+                salary: "",
+                phone: "",
+                joiningDate: "",
+              })
+            }
+          />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl border p-6 ring-1 ring-black/5">
             {/* Header */}
             <div className="flex items-start gap-3 mb-4">
@@ -254,7 +286,9 @@ export default function HiringBoardPage() {
               </div>
               <div>
                 <div className="text-base font-semibold">Initiate Offer</div>
-                <div className="text-xs text-zinc-500">Provide the details below to send a formal offer letter</div>
+                <div className="text-xs text-zinc-500">
+                  Provide the details below to send a formal offer letter
+                </div>
               </div>
             </div>
 
@@ -262,7 +296,9 @@ export default function HiringBoardPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-zinc-600 mb-1 block">Salary</label>
+                  <label className="text-xs font-medium text-zinc-600 mb-1 block">
+                    Salary
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                       <DollarSign className="w-4 h-4" />
@@ -271,14 +307,23 @@ export default function HiringBoardPage() {
                       className="pl-9"
                       placeholder="e.g. 150000"
                       value={offerDialog.salary}
-                      onChange={(e) => setOfferDialog((s) => ({ ...s, salary: e.target.value }))}
+                      onChange={(e) =>
+                        setOfferDialog((s) => ({
+                          ...s,
+                          salary: e.target.value,
+                        }))
+                      }
                     />
                   </div>
-                  <p className="mt-1 text-[11px] text-zinc-400">Enter gross monthly amount</p>
+                  <p className="mt-1 text-[11px] text-zinc-400">
+                    Enter gross monthly amount
+                  </p>
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-zinc-600 mb-1 block">Phone</label>
+                  <label className="text-xs font-medium text-zinc-600 mb-1 block">
+                    Phone
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
                       <Phone className="w-4 h-4" />
@@ -287,24 +332,33 @@ export default function HiringBoardPage() {
                       className="pl-9"
                       placeholder="Candidate phone"
                       value={offerDialog.phone}
-                      onChange={(e) => setOfferDialog((s) => ({ ...s, phone: e.target.value }))}
+                      onChange={(e) =>
+                        setOfferDialog((s) => ({ ...s, phone: e.target.value }))
+                      }
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-zinc-600 mb-1 block">Joining Date (optional)</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-                        <CalendarDays className="w-4 h-4" />
-                      </div>
-                      <Input
-                        type="date"
-                        className="pl-9"
-                        value={offerDialog.joiningDate}
-                        onChange={(e) => setOfferDialog((s) => ({ ...s, joiningDate: e.target.value }))}
-                      />
+                  <label className="text-xs font-medium text-zinc-600 mb-1 block">
+                    Joining Date (optional)
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+                      <CalendarDays className="w-4 h-4" />
                     </div>
+                    <Input
+                      type="date"
+                      className="pl-9"
+                      value={offerDialog.joiningDate}
+                      onChange={(e) =>
+                        setOfferDialog((s) => ({
+                          ...s,
+                          joiningDate: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -312,11 +366,24 @@ export default function HiringBoardPage() {
               <div className="flex items-center justify-end gap-2 pt-2">
                 <Button
                   variant="outline"
-                  onClick={() => setOfferDialog({ open: false, app: null, salary: "", phone: "", joiningDate: "" })}
+                  onClick={() =>
+                    setOfferDialog({
+                      open: false,
+                      app: null,
+                      salary: "",
+                      phone: "",
+                      joiningDate: "",
+                    })
+                  }
                 >
                   Cancel
                 </Button>
-                <Button onClick={submitOffer} className="bg-violet-600 hover:bg-violet-700">Send Offer</Button>
+                <Button
+                  onClick={submitOffer}
+                  className="bg-violet-600 hover:bg-violet-700"
+                >
+                  Send Offer
+                </Button>
               </div>
             </div>
           </div>

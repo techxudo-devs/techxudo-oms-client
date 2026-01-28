@@ -2,7 +2,6 @@ import React from "react";
 import { useOnboarding } from "../hooks/useOnboarding";
 import { Loader, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { OfferDetail } from "../components/onboarding/OfferDetail";
-import { OnboardingForm } from "../components/onboarding/OnBoardingForm";
 import { StatusDisplay } from "../components/onboarding/StatusDisplay";
 import { Link } from "react-router-dom";
 
@@ -55,7 +54,13 @@ export const OnboardingPage = () => {
       case "pending":
         return <OfferDetail details={onboardingDetails} />;
       case "accepted":
-        return <OnboardingForm />;
+        return (
+          <StatusDisplay
+            icon={<Loader className="w-16 h-16 text-brand-primary animate-spin" />}
+            title="Redirecting to Employment Form"
+            message="Please wait while we open your employment form."
+          />
+        );
       case "completed":
         return (
           <StatusDisplay
