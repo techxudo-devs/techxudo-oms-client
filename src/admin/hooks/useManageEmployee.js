@@ -9,13 +9,10 @@ import {
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 
-/**
- * Manages all state and logic for the employee management feature.
- */
 export const useManageEmployee = () => {
   // State for filters
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
@@ -29,7 +26,7 @@ export const useManageEmployee = () => {
     page,
     limit: 10,
     search: debouncedSearchTerm,
-    role: roleFilter,
+    role: roleFilter === "all" ? "" : roleFilter,
   });
 
   const [deleteEmployee, { isLoading: isDeletingEmployee }] =
@@ -51,7 +48,7 @@ export const useManageEmployee = () => {
         });
       }
     },
-    [deleteEmployee]
+    [deleteEmployee],
   );
 
   const blockEmployeeAccess = useCallback(
@@ -65,7 +62,7 @@ export const useManageEmployee = () => {
         });
       }
     },
-    [blockEmployee]
+    [blockEmployee],
   );
 
   const unblockEmployeeAccess = useCallback(
@@ -79,7 +76,7 @@ export const useManageEmployee = () => {
         });
       }
     },
-    [unblockEmployee]
+    [unblockEmployee],
   );
 
   const handleRefresh = useCallback(() => {

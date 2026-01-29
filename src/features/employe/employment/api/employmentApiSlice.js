@@ -70,7 +70,16 @@ export const employmentApiSlice = apiSlice.injectEndpoints({
 
     // List all employment forms (admin)
     listEmploymentForms: builder.query({
-      query: () => "/employment-forms",
+      query: (params = {}) => {
+        const filterParams = Object.entries(params || {}).reduce((acc, [key, value]) => {
+          if (value === undefined || value === null) return acc;
+          if (typeof value === "string" && value.trim() === "") return acc;
+          acc[key] = value;
+          return acc;
+        }, {});
+        const qs = new URLSearchParams(filterParams).toString();
+        return { url: `/employment-forms${qs ? `?${qs}` : ""}` };
+      },
       providesTags: ["EmploymentForms"],
     }),
 
