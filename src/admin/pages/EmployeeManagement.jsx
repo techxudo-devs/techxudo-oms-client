@@ -1,5 +1,14 @@
 import React, { useState, useCallback } from "react";
-import { Search, RefreshCw, UserPlus, Users2 } from "lucide-react";
+import {
+  Search,
+  RefreshCw,
+  UserPlus,
+  Users2,
+  FileText,
+  Briefcase,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,6 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
 import CreateEmployeeForm from "../components/employee-manage/CreateEmployeeForm";
 import PageLayout from "../../shared/components/layout/PagesLayout";
 import EmployeeTable from "../components/employee-manage/EmployeeTable";
@@ -22,20 +35,37 @@ import {
   useRequestEmploymentFormRevisionMutation,
 } from "@/features/employe/employment/api/employmentApiSlice";
 
+// --- Constants ---
 const ROLE_OPTIONS = [
   { value: "all", label: "All Roles" },
   { value: "admin", label: "Admin" },
   { value: "employee", label: "Employee" },
 ];
 
+const StatCard = ({ title, value, icon: Icon, colorClass }) => (
+  <Card>
+    <CardContent className="p-6 flex items-center justify-between">
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-gray-500">{title}</p>
+        <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
+      </div>
+      <div className={`p-3 rounded-xl ${colorClass}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+    </CardContent>
+  </Card>
+);
+
 const EmployeeManagement = () => {
+  const [activeTab, setActiveTab] = useState("directory");
   const [showForm, setShowForm] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // --- Employment Records Hook ---
   const {
     forms,
-    total,
+    total: totalForms,
     currentPage,
     totalPages,
     isFetching: isFetchingForms,
@@ -54,6 +84,7 @@ const EmployeeManagement = () => {
   const [requestEmploymentFormRevision] =
     useRequestEmploymentFormRevisionMutation();
 
+  // --- Active Employee Hook ---
   const {
     employees,
     isLoading,
@@ -67,6 +98,7 @@ const EmployeeManagement = () => {
     handleRefresh,
   } = useManageEmployee();
 
+  // --- Handlers ---
   const handleView = (employee) => console.log("View employee:", employee);
   const handleEdit = (employee) => console.log("Edit employee:", employee);
 
@@ -84,7 +116,9 @@ const EmployeeManagement = () => {
         refetchForms();
       } catch (error) {
         toast.error(
-          error?.data?.error || error?.message || "Failed to update form status",
+          error?.data?.error ||
+            error?.message ||
+            "Failed to update form status",
         );
       } finally {
         setReviewingFormId(null);
@@ -96,11 +130,6 @@ const EmployeeManagement = () => {
   const handleOpenDetails = useCallback((formId) => {
     setSelectedFormId(formId);
     setIsModalOpen(true);
-  }, []);
-
-  const handleCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-    setSelectedFormId(null);
   }, []);
 
   const handleRequestRevision = useCallback(
@@ -126,184 +155,271 @@ const EmployeeManagement = () => {
     [requestEmploymentFormRevision, refetchForms],
   );
 
+  // Quick stats calculation (mock logic or derived from real data if available)
+  const pendingReviews = forms.filter(
+    (f) => f.status === "pending_review",
+  ).length;
+
   return (
     <PageLayout
-      title="Employment"
-      subtitle="Track the onboarding pipeline and manage the active team"
+      title="People & Employment"
+      subtitle="Manage your team directory and onboarding pipeline"
       icon={Users2}
       actions={
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-          onClick={() => setShowForm((prev) => !prev)}
-        >
-          <UserPlus className="h-4 w-4" />
-          {showForm ? "Hide form" : "Add employee"}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setActiveTab("onboarding")}
+            className={activeTab === "onboarding" ? "bg-gray-100" : ""}
+          >
+            Review Applications
+          </Button>
+          <Button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2"
+          >
+            <UserPlus className="h-4 w-4" />
+            Add Employee
+          </Button>
+        </div>
       }
     >
       <div className="space-y-6">
-        <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Employment pipeline</p>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Hired candidates
-              </h2>
-              <p className="text-xs text-gray-500">
-                Showing {forms.length} of {total} records
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative">
-                <Input
-                  placeholder="Search by name, email, phone"
-                  className="pr-10"
-                  value={formSearchTerm}
-                  onChange={(e) => setFormSearchTerm(e.target.value)}
-                />
-                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              </div>
-              <Select
-              >
-                <SelectTrigger className="min-w-[160px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {statusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={refetchForms}
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${isFetchingForms ? "animate-spin" : ""}`}
-                />
-                Refresh
-              </Button>
-            </div>
-          </div>
-          <EmploymentRecordsTable
-            forms={forms}
-            isLoading={isFetchingForms}
-            onReview={handleReview}
-            reviewingId={reviewingFormId}
-            onViewDetails={handleOpenDetails}
+        {/* --- KPI Stats Row --- */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Total Employees"
+            value={employees?.length || 0}
+            icon={Users2}
+            colorClass="bg-blue-50 text-blue-600"
           />
-          <div className="rounded-xl bg-slate-50/60 p-4 text-xs text-gray-600">
-            <p className="font-semibold text-gray-800">Process guidance:</p>
-            <p>1. Review the submitted form and mark as approved/rejected.</p>
-            <p>
-              2. Approved candidates receive an appointment letter via the
-              hiring board (Admin &gt; Hiring).
-            </p>
-            <p>3. Send the employment contract and request e-signature.</p>
-            <p>4. Once signed, the user receives credentials and onboarding links.</p>
-          </div>
-          {totalPages > 1 && (
-            <div className="flex flex-col gap-3 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
-              <p>
-                Page {currentPage} of {totalPages} ({total} records)
-              </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setFormsPage(Math.max(currentPage - 1, 1))}
-                  disabled={currentPage <= 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    setFormsPage(Math.min(currentPage + 1, totalPages))
-                  }
-                  disabled={currentPage >= totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {showForm && (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Create new employee
-            </h2>
-            <CreateEmployeeForm
-              onSuccess={() => {
-                setShowForm(false);
-                handleRefresh();
-              }}
-            />
-          </div>
-        )}
-
-        <section className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Active staff</p>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Employee directory
-              </h2>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative">
-                <Input
-                  placeholder="Search employees..."
-                  className="pr-10 w-full sm:w-auto"
-                  value={employeeSearchTerm}
-                  onChange={(e) => setEmployeeSearchTerm(e.target.value)}
-                />
-                <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              </div>
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="min-w-[160px]">
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROLE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={handleRefresh}
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${isLoading.employees ? "animate-spin" : ""}`}
-                />
-                Refresh
-              </Button>
-            </div>
-          </div>
-          <EmployeeTable
-            employees={employees}
-            isLoading={isLoading.employees}
-            onEdit={handleEdit}
-            onDelete={removeEmployee}
-            onBlock={blockEmployeeAccess}
-            onUnblock={unblockEmployeeAccess}
-            onView={handleView}
+          <StatCard
+            title="Onboarding"
+            value={totalForms}
+            icon={FileText}
+            colorClass="bg-purple-50 text-purple-600"
           />
-        </section>
+          <StatCard
+            title="Pending Review"
+            value={pendingReviews}
+            icon={AlertCircle}
+            colorClass="bg-amber-50 text-amber-600"
+          />
+          <StatCard
+            title="Active Now"
+            value={employees?.filter((e) => !e.isBlocked).length || 0}
+            icon={CheckCircle2}
+            colorClass="bg-green-50 text-green-600"
+          />
+        </div>
+
+        {/* --- Main Content Tabs --- */}
+        <Tabs
+          defaultValue="directory"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+              <TabsTrigger value="directory">Employee Directory</TabsTrigger>
+              <TabsTrigger value="onboarding">
+                Onboarding Pipeline
+                {pendingReviews > 0 && (
+                  <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                    {pendingReviews}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* 1. Employee Directory Tab */}
+          <TabsContent value="directory" className="space-y-4">
+            {showForm && (
+              <Card className="border-blue-100 bg-blue-50/30">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base font-semibold text-blue-900">
+                      Add New Team Member
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-blue-700 hover:bg-blue-100"
+                      onClick={() => setShowForm(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <CreateEmployeeForm
+                    onSuccess={() => {
+                      setShowForm(false);
+                      handleRefresh();
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            <Card>
+              <div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-1 items-center gap-2">
+                  <div className="relative w-full max-w-sm">
+                    <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Search by name or email..."
+                      className="pl-9"
+                      value={employeeSearchTerm}
+                      onChange={(e) => setEmployeeSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <Select value={roleFilter} onValueChange={setRoleFilter}>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROLE_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  className="gap-2"
+                >
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 ${
+                      isLoading.employees ? "animate-spin" : ""
+                    }`}
+                  />
+                  Refresh
+                </Button>
+              </div>
+              <EmployeeTable
+                employees={employees}
+                isLoading={isLoading.employees}
+                onEdit={handleEdit}
+                onDelete={removeEmployee}
+                onBlock={blockEmployeeAccess}
+                onUnblock={unblockEmployeeAccess}
+                onView={handleView}
+              />
+            </Card>
+          </TabsContent>
+
+          {/* 2. Onboarding Pipeline Tab */}
+          <TabsContent value="onboarding" className="space-y-4">
+            <Card>
+              <div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-1 items-center gap-2">
+                  <div className="relative w-full max-w-sm">
+                    <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Input
+                      placeholder="Search candidates..."
+                      className="pl-9"
+                      value={formSearchTerm}
+                      onChange={(e) => setFormSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[160px]">
+                      <SelectValue placeholder="Filter Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={refetchForms}
+                  className="gap-2"
+                >
+                  <RefreshCw
+                    className={`h-3.5 w-3.5 ${
+                      isFetchingForms ? "animate-spin" : ""
+                    }`}
+                  />
+                  Refresh Records
+                </Button>
+              </div>
+
+              <EmploymentRecordsTable
+                forms={forms}
+                isLoading={isFetchingForms}
+                onReview={handleReview}
+                reviewingId={reviewingFormId}
+                onViewDetails={handleOpenDetails}
+              />
+
+              {/* Pagination Footer */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t p-4">
+                  <p className="text-xs text-gray-500">
+                    Showing {(currentPage - 1) * 10 + 1}-
+                    {Math.min(currentPage * 10, totalForms)} of {totalForms}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormsPage(Math.max(currentPage - 1, 1))}
+                      disabled={currentPage <= 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setFormsPage(Math.min(currentPage + 1, totalPages))
+                      }
+                      disabled={currentPage >= totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Card>
+
+            {/* Helper Info Box */}
+            <div className="flex gap-4 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+              <Briefcase className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+              <div className="space-y-1">
+                <p className="font-semibold">Workflow Guidance</p>
+                <ul className="list-inside list-disc space-y-1 text-blue-800/80">
+                  <li>
+                    Review submitted forms and verify identity documents (CNIC).
+                  </li>
+                  <li>
+                    Approved candidates are automatically moved to the Hired
+                    stage.
+                  </li>
+                  <li>
+                    Use the <strong>Request Revision</strong> feature if
+                    documents are unclear.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* --- Modals --- */}
         <EmploymentFormReviewModal
           open={isModalOpen}
           onOpenChange={(value) => setIsModalOpen(value)}

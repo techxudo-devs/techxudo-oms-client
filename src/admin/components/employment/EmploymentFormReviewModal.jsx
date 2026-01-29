@@ -407,14 +407,14 @@ const EmploymentFormReviewModal = ({
                   <Button
                     variant="outline"
                     className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                    onClick={() => onReject && onReject(formId, "rejected")}
+                    onClick={() => onReject && onReject(formId, "rejected", notes)}
                     disabled={!isPending}
                   >
                     Reject Application
                   </Button>
                   <Button
                     className="bg-green-600 hover:bg-green-700"
-                    onClick={() => onApprove && onApprove(formId, "approved")}
+                    onClick={() => onApprove && onApprove(formId, "approved", notes)}
                     disabled={!isPending}
                   >
                     Approve Application

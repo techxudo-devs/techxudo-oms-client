@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useFormik } from "formik";
 import {
   useGetEmploymentFormByTokenQuery,
@@ -36,11 +36,59 @@ const useEmploymentForm = (token) => {
     error,
     isError,
   } = useGetEmploymentFormByTokenQuery(token, { skip: !token });
+
+  const formInitialValues = useMemo(() => {
+    if (!formResponse?.data) {
+      return initialValues;
+    }
+
+    const personalInfo = formResponse.data.personalInfo || {};
+    const cnicInfo = formResponse.data.cnicInfo || {};
+    const contactInfo = formResponse.data.contactInfo || {};
+    const addresses = formResponse.data.addresses || {};
+
+    return {
+      ...initialValues,
+      photo: personalInfo.photo ?? null,
+      legalName: personalInfo.legalName ?? formResponse.data.employeeName ?? "",
+      fatherName: personalInfo.fatherName ?? "",
+      guardianName: personalInfo.guardianName ?? "",
+      guardianCNIC: personalInfo.guardianCNIC ?? "",
+      dateOfBirth: personalInfo.dateOfBirth ?? "",
+      gender: personalInfo.gender ?? "",
+      maritalStatus: personalInfo.maritalStatus ?? "",
+      cnicNumber: cnicInfo.cnicNumber ?? "",
+      cnicFrontImage: cnicInfo.cnicFrontImage ?? null,
+      cnicBackImage: cnicInfo.cnicBackImage ?? null,
+      cnicIssueDate: cnicInfo.cnicIssueDate ?? "",
+      cnicExpiryDate: cnicInfo.cnicExpiryDate ?? "",
+      phone: contactInfo.phone ?? "",
+      alternatePhone: contactInfo.alternatePhone ?? "",
+      email: contactInfo.email ?? formResponse.data.employeeEmail ?? "",
+      emergencyContactName: contactInfo.emergencyContact?.name ?? "",
+      emergencyContactRelationship: contactInfo.emergencyContact?.relationship ?? "",
+      emergencyContactPhone: contactInfo.emergencyContact?.phone ?? "",
+      primaryStreet: addresses.primaryAddress?.street ?? "",
+      primaryCity: addresses.primaryAddress?.city ?? "",
+      primaryState: addresses.primaryAddress?.state ?? "",
+      primaryZipCode: addresses.primaryAddress?.zipCode ?? "",
+      secondaryStreet: addresses.secondaryAddress?.street ?? "",
+      secondaryCity: addresses.secondaryAddress?.city ?? "",
+      secondaryState: addresses.secondaryAddress?.state ?? "",
+      secondaryZipCode: addresses.secondaryAddress?.zipCode ?? "",
+      acceptedPolicies: (formResponse.data.acceptedPolicies || []).map((policy) => ({
+        policyId: policy.policyId,
+        policyTitle: policy.policyTitle,
+        acceptedAt: policy.acceptedAt,
+      })),
+    };
+  }, [formResponse?.data]);
   const [submitForm, { isLoading: isSubmitting }] =
     useSubmitEmploymentFormMutation();
 
   const formik = useFormik({
-    initialValues,
+    initialValues: formInitialValues,
+    enableReinitialize: true,
     validationSchema: validationSchemas[currentStep],
     validateOnChange: false,
     validateOnBlur: true,
