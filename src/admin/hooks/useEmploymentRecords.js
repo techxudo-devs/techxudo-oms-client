@@ -3,15 +3,15 @@ import { useDebounce } from "use-debounce";
 import { useListEmploymentFormsQuery } from "@/features/employe/employment/api/employmentApiSlice";
 
 const EMPLOYMENT_STATUS_OPTIONS = [
-  { value: "all", label: "All" },
-  { value: "draft", label: "Draft" },
   { value: "pending_review", label: "Pending Review" },
   { value: "approved", label: "Approved" },
   { value: "rejected", label: "Rejected" },
+  { value: "draft", label: "Draft" },
+  { value: "all", label: "All" },
 ];
 
 export const useEmploymentRecords = () => {
-  const [statusFilter, setStatusFilter] = useState("approved");
+  const [statusFilter, setStatusFilter] = useState("pending_review");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;

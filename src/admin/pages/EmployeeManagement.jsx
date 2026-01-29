@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Search, RefreshCw, UserPlus, Users2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,13 @@ import PageLayout from "../../shared/components/layout/PagesLayout";
 import EmployeeTable from "../components/employee-manage/EmployeeTable";
 import { useManageEmployee } from "../hooks/useManageEmployee";
 import EmploymentRecordsTable from "../components/employment/EmploymentRecordsTable";
+import EmploymentFormReviewModal from "../components/employment/EmploymentFormReviewModal";
 import { useEmploymentRecords } from "../hooks/useEmploymentRecords";
+import { toast } from "sonner";
+import {
+  useReviewEmploymentFormMutation,
+  useRequestEmploymentFormRevisionMutation,
+} from "@/features/employe/employment/api/employmentApiSlice";
 
 const ROLE_OPTIONS = [
   { value: "all", label: "All Roles" },
@@ -24,6 +30,8 @@ const ROLE_OPTIONS = [
 
 const EmployeeManagement = () => {
   const [showForm, setShowForm] = useState(false);
+  const [selectedFormId, setSelectedFormId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     forms,
@@ -40,6 +48,12 @@ const EmployeeManagement = () => {
     statusOptions,
   } = useEmploymentRecords();
 
+  const [reviewingFormId, setReviewingFormId] = useState(null);
+  const [reviewEmploymentForm] = useReviewEmploymentFormMutation();
+  const [requestingFormId, setRequestingFormId] = useState(null);
+  const [requestEmploymentFormRevision] =
+    useRequestEmploymentFormRevisionMutation();
+
   const {
     employees,
     isLoading,
@@ -55,6 +69,62 @@ const EmployeeManagement = () => {
 
   const handleView = (employee) => console.log("View employee:", employee);
   const handleEdit = (employee) => console.log("Edit employee:", employee);
+
+  const handleReview = useCallback(
+    async (formId, status) => {
+      if (!formId) return;
+      setReviewingFormId(formId);
+      try {
+        await reviewEmploymentForm({ id: formId, status }).unwrap();
+        toast.success(
+          status === "approved"
+            ? "Form approved successfully"
+            : "Form rejected successfully",
+        );
+        refetchForms();
+      } catch (error) {
+        toast.error(
+          error?.data?.error || error?.message || "Failed to update form status",
+        );
+      } finally {
+        setReviewingFormId(null);
+      }
+    },
+    [reviewEmploymentForm, refetchForms],
+  );
+
+  const handleOpenDetails = useCallback((formId) => {
+    setSelectedFormId(formId);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedFormId(null);
+  }, []);
+
+  const handleRequestRevision = useCallback(
+    async (formId, fields, notes) => {
+      if (!formId) return;
+      setRequestingFormId(formId);
+      try {
+        await requestEmploymentFormRevision({
+          id: formId,
+          fields,
+          notes,
+        }).unwrap();
+        toast.success("Revision requested and candidate notified");
+        refetchForms();
+      } catch (error) {
+        toast.error(
+          error?.data?.error || error?.message || "Failed to request revision",
+        );
+      } finally {
+        setRequestingFormId(null);
+      }
+    },
+    [requestEmploymentFormRevision, refetchForms],
+  );
 
   return (
     <PageLayout
@@ -121,7 +191,23 @@ const EmployeeManagement = () => {
               </Button>
             </div>
           </div>
-          <EmploymentRecordsTable forms={forms} isLoading={isFetchingForms} />
+          <EmploymentRecordsTable
+            forms={forms}
+            isLoading={isFetchingForms}
+            onReview={handleReview}
+            reviewingId={reviewingFormId}
+            onViewDetails={handleOpenDetails}
+          />
+          <div className="rounded-xl bg-slate-50/60 p-4 text-xs text-gray-600">
+            <p className="font-semibold text-gray-800">Process guidance:</p>
+            <p>1. Review the submitted form and mark as approved/rejected.</p>
+            <p>
+              2. Approved candidates receive an appointment letter via the
+              hiring board (Admin &gt; Hiring).
+            </p>
+            <p>3. Send the employment contract and request e-signature.</p>
+            <p>4. Once signed, the user receives credentials and onboarding links.</p>
+          </div>
           {totalPages > 1 && (
             <div className="flex flex-col gap-3 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
               <p>
@@ -218,6 +304,15 @@ const EmployeeManagement = () => {
             onView={handleView}
           />
         </section>
+        <EmploymentFormReviewModal
+          open={isModalOpen}
+          onOpenChange={(value) => setIsModalOpen(value)}
+          formId={selectedFormId}
+          onApprove={handleReview}
+          onReject={handleReview}
+          onRequestRevision={handleRequestRevision}
+          requestingId={requestingFormId}
+        />
       </div>
     </PageLayout>
   );

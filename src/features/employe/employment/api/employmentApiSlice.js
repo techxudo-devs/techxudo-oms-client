@@ -95,6 +95,18 @@ export const employmentApiSlice = apiSlice.injectEndpoints({
         "EmploymentForms",
       ],
     }),
+    requestEmploymentFormRevision: builder.mutation({
+      query: ({ id, fields, notes }) => ({
+        url: `/employment-forms/${id}/request-revision`,
+        method: "PUT",
+        body: { fields, notes },
+      }),
+      invalidatesTags: ["EmploymentForms"],
+    }),
+    getEmploymentFormDetail: builder.query({
+      query: (id) => `/employment-forms/${id}`,
+      providesTags: (result, error, id) => [{ type: "EmploymentForm", id }],
+    }),
 
     // ============ Contract Endpoints ============
 
@@ -165,6 +177,8 @@ export const {
   useCreateEmploymentFormMutation,
   useListEmploymentFormsQuery,
   useReviewEmploymentFormMutation,
+  useRequestEmploymentFormRevisionMutation,
+  useGetEmploymentFormDetailQuery,
 
   // Contract hooks
   useGetContractByTokenQuery,

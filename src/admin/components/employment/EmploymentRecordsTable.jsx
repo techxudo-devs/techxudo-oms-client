@@ -1,4 +1,3 @@
-import { ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -34,7 +33,13 @@ const openFormWindow = (token) => {
   }
 };
 
-const EmploymentRecordsTable = ({ forms = [], isLoading }) => {
+const EmploymentRecordsTable = ({
+  forms = [],
+  isLoading,
+  onReview,
+  reviewingId,
+  onViewDetails,
+}) => {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white">
       <Table>
@@ -45,7 +50,9 @@ const EmploymentRecordsTable = ({ forms = [], isLoading }) => {
             <TableHead>Status</TableHead>
             <TableHead>Submitted</TableHead>
             <TableHead>Reviewed</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>Revision History</TableHead>
+            <TableHead className="text-right">Details</TableHead>
+            <TableHead className="text-right">Review</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -92,17 +99,68 @@ const EmploymentRecordsTable = ({ forms = [], isLoading }) => {
                   <TableCell className="text-sm text-gray-700">
                     {formatDate(form.reviewedAt)}
                   </TableCell>
+                  <TableCell className="text-sm text-gray-700">
+                    {form.revisionRequests?.length ? (
+                      <div className="space-y-1 text-xs text-gray-600">
+                        {form.revisionRequests
+                          .slice(-2)
+                          .reverse()
+                          .map((req, idx) => (
+                            <div key={idx}>
+                              {req.requestedFields?.join(", ")} - {req.notes}
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
                       className="gap-2"
-                      onClick={() => openFormWindow(form.submissionToken)}
-                      disabled={!form.submissionToken}
+                      onClick={() => onViewDetails && onViewDetails(form._id || form.id)}
                     >
-                      <ExternalLink className="size-4" />
-                      Open Form
+                      View
                     </Button>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-xs"
+                          onClick={() =>
+                            onReview && onReview(form._id || form.id, "approved")
+                          }
+                          disabled={
+                            !onReview || status !== "pending_review"
+                          }
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-xs"
+                          onClick={() =>
+                            onReview && onReview(form._id || form.id, "rejected")
+                          }
+                          disabled={
+                            !onReview || status !== "pending_review"
+                          }
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                      {onReview && reviewingId === (form._id || form.id) && (
+                        <p className="text-[11px] text-gray-500">
+                          Updating...
+                        </p>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               );

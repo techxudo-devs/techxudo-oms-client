@@ -21,6 +21,7 @@ const EmploymentFormPage = () => {
 
   const {
     formik,
+    formResponse,
     policies,
     isLoading,
     isError,
@@ -39,6 +40,9 @@ const EmploymentFormPage = () => {
     togglePolicy,
     org,
   } = useEmploymentForm(token);
+
+  const latestRevision = formResponse?.data?.revisionRequests?.slice(-1)[0];
+  const isRevisionRequested = formResponse?.data?.status === "needs_revision";
 
   const stepComponents = [
     PersonalInfoStep,
@@ -71,6 +75,7 @@ const EmploymentFormPage = () => {
       "The employment form could not be loaded.";
     const isExpired = error?.status === 410;
     const isNotFound = error?.status === 404;
+    const isAlreadySubmitted = error?.status === 409;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
@@ -83,6 +88,8 @@ const EmploymentFormPage = () => {
               ? "Link Expired"
               : isNotFound
               ? "Form Not Found"
+              : isAlreadySubmitted
+              ? "Already Submitted"
               : "Error Loading Form"}
           </h2>
           <p className="text-gray-600 mb-4">{errorMessage}</p>
@@ -90,6 +97,16 @@ const EmploymentFormPage = () => {
             <p className="text-sm text-gray-500">
               Please contact HR for assistance.
             </p>
+          )}
+          {isAlreadySubmitted && (
+            <div className="text-left text-sm text-gray-500 space-y-1">
+              <p>
+                Your submission is in review. HR will reach out with the next
+                steps, including an appointment link, contract signing, and
+                credential setup.
+              </p>
+              <p>Please wait for the confirmation email before retrying.</p>
+            </div>
           )}
         </div>
       </div>
@@ -100,18 +117,25 @@ const EmploymentFormPage = () => {
   if (submitSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Form Submitted Successfully!
-          </h2>
-          <p className="text-gray-600">
-            Your employment form has been submitted for review. You'll receive
-            an email with next steps shortly.
-          </p>
-        </div>
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Form Submitted Successfully!
+        </h2>
+        <p className="text-gray-600">
+          Your employment form has been submitted for review. HR will contact
+          you once your profile is approved and share the appointment, contract,
+          and onboarding steps.
+        </p>
+        <ul className="mt-4 space-y-1 text-left text-sm text-gray-600">
+          <li>1. HR reviews your information and confirms it internally.</li>
+          <li>2. You receive an appointment letter link to confirm the role.</li>
+          <li>3. A contract is issued for review and e-signature.</li>
+          <li>4. Once signed, you’ll get credentials and onboarding instructions.</li>
+        </ul>
       </div>
-    );
+    </div>
+  );
   }
 
   return (
@@ -166,6 +190,20 @@ const EmploymentFormPage = () => {
               </div>
             ))}
           </div>
+          {isRevisionRequested && (
+            <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-900">
+              <p className="font-semibold">HR requested updates</p>
+              <p>
+                Please revisit: {latestRevision?.requestedFields?.join(", ") || "the sections requested"}.
+              </p>
+              {latestRevision?.notes && (
+                <p className="text-xs text-amber-800">Note: {latestRevision.notes}</p>
+              )}
+              <p className="text-xs text-amber-700">
+                Update and resubmit so we can continue with the next steps (appointment, contract, credentials).
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Content */}
